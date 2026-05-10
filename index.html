@@ -43,7 +43,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 .s-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
 
-/* Grid updated to 2 columns to fit 4 options neatly */
 .ai-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
 .ai-opt{
   border:2px solid #e2e8f0;border-radius:10px;padding:14px 10px;
@@ -159,9 +158,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 /* Empty */
 .empty{
-  flex:1;display:flex;flex-direction:column;
+  margin: auto; /* Centers the empty state specifically */
+  display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  text-align:center;gap:16px;padding:40px;min-height:400px;
+  text-align:center;gap:16px;padding:40px;
 }
 .e-icon{
   width:72px;height:72px;border-radius:20px;
@@ -187,9 +187,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   animation:pop .25s ease;
   width: 100%;
   max-width: 900px; 
-  /* FIX: Removed margin: auto which caused flexbox to clip long scrollable content */
-  margin-top: 20px;
-  margin-bottom: 40px;
+  /* FIX: margin: auto causes flexbox scroll clipping. Use specific margins */
+  margin: 0 auto 40px auto; 
+  flex-shrink: 0; /* FIX: ensures the card never gets squished, allows full scroll */
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
