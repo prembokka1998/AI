@@ -3,649 +3,911 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InterviewAI — Voice Interview Assistant</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>InterviewAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0a0f; --surface: #111118; --surface2: #1a1a25; --surface3: #2a2a3a;
-    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-    --text: #f0f0ff; --text2: #9090b0; --text3: #606080;
-    --accent: #7c6dfa; --accent2: #5b4de0;
-    --green: #22d3a0; --red: #ff4f6d; --amber: #f59e0b;
-    --claude: #d97706; --openai: #10b981; --gemini: #4285f4;
-    --font: 'Space Grotesk', sans-serif; --mono: 'JetBrains Mono', monospace;
-    --radius: 12px; --radius-sm: 8px; --radius-lg: 20px;
-  }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; user-select: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#f7f9fc;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --text:#1e293b;
+  --text2:#64748b;
+  --text3:#94a3b8;
+  --accent:#4f46e5;
+  --accent-light:#ede9fe;
+  --green:#059669;
+  --green-light:#d1fae5;
+  --red:#dc2626;
+  --red-light:#fee2e2;
+  --amber:#d97706;
+  --amber-light:#fef3c7;
+  --gemini:#4285f4;
+  --gemini-light:#dbeafe;
+  --claude:#d97706;
+  --claude-light:#fef3c7;
+  --openai:#059669;
+  --openai-light:#d1fae5;
+  --font:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:10px; --r-sm:6px; --r-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg:0 10px 40px rgba(0,0,0,.12);
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
 
-  /* ══ SETUP SCREEN ══ */
-  #setup-screen {
-    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at 30% 40%, rgba(124,109,250,0.14) 0%, transparent 60%),
-                radial-gradient(ellipse at 75% 80%, rgba(34,211,160,0.07) 0%, transparent 50%), var(--bg);
-    z-index: 100; overflow-y: auto; padding: 20px;
-  }
-  .setup-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
-    padding: 40px 36px; width: 500px; max-width: 100%;
-    box-shadow: 0 0 100px rgba(124,109,250,0.1), 0 40px 80px rgba(0,0,0,0.7);
-  }
-  .setup-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-  .setup-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--green)); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .setup-logo h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .setup-tagline { color: var(--text2); font-size: 13px; margin-bottom: 32px; padding-left: 54px; }
-  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+/* ═══════════════ SETUP SCREEN ═══════════════ */
+#setup{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  z-index:100;overflow-y:auto;padding:20px;
+}
+.card{
+  background:#fff;border-radius:20px;padding:40px 36px;width:480px;max-width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 12px rgba(79,70,229,.4);
+}
+.brand h1{font-size:24px;font-weight:700;color:#1e293b;letter-spacing:-.5px}
+.brand-sub{color:#64748b;font-size:13px;margin-bottom:32px;padding-left:56px}
 
-  /* AI Cards */
-  .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
-  .ai-card { background: var(--surface2); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; overflow: hidden; }
-  .ai-card::after { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; }
-  .ai-card[data-ai="claude"]::after  { background: rgba(217,119,6,0.07); }
-  .ai-card[data-ai="openai"]::after  { background: rgba(16,185,129,0.07); }
-  .ai-card[data-ai="gemini"]::after  { background: rgba(66,133,244,0.07); }
-  .ai-card:hover::after, .ai-card.selected::after { opacity: 1; }
-  .ai-card.selected[data-ai="claude"] { border-color: var(--claude); }
-  .ai-card.selected[data-ai="openai"] { border-color: var(--openai); }
-  .ai-card.selected[data-ai="gemini"] { border-color: var(--gemini); }
-  .ai-avatar { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
-  .ai-avatar.claude { background: rgba(217,119,6,0.18); color: var(--claude); }
-  .ai-avatar.openai { background: rgba(16,185,129,0.18); color: var(--openai); }
-  .ai-avatar.gemini { background: rgba(66,133,244,0.18); color: var(--gemini); }
-  .ai-name  { font-size: 13px; font-weight: 600; }
-  .ai-maker { font-size: 10px; color: var(--text2); margin-top: 2px; }
+.s-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
 
-  /* API Key */
-  .key-wrap { position: relative; margin-bottom: 6px; }
-  .key-wrap input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 11px 42px 11px 14px; outline: none; transition: border-color 0.2s; }
-  .key-wrap input:focus { border-color: var(--accent); }
-  .key-wrap input::placeholder { color: var(--text3); }
-  .key-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text2); cursor: pointer; font-size: 15px; padding: 0; }
-  .key-hint { font-size: 11px; color: var(--text3); margin-bottom: 24px; line-height: 1.5; }
-  .key-hint a { color: var(--accent); text-decoration: none; }
-  .err { color: var(--red); font-size: 12px; margin-top: 4px; display: none; }
+.ai-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+.ai-opt{
+  border:2px solid #e2e8f0;border-radius:10px;padding:14px 10px;
+  cursor:pointer;text-align:center;transition:all .18s;background:#f8fafc;
+}
+.ai-opt:hover{border-color:#a5b4fc;background:#ede9fe}
+.ai-opt.sel-gemini{border-color:#4285f4;background:#dbeafe}
+.ai-opt.sel-claude{border-color:#d97706;background:#fef3c7}
+.ai-opt.sel-openai{border-color:#059669;background:#d1fae5}
+.ai-av{width:32px;height:32px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.av-g{background:#dbeafe;color:#4285f4}
+.av-c{background:#fef3c7;color:#d97706}
+.av-o{background:#d1fae5;color:#059669}
+.ai-nm{font-size:13px;font-weight:600;color:#1e293b}
+.ai-by{font-size:10px;color:#94a3b8;margin-top:2px}
 
-  /* Mic box */
-  .mic-box { display: flex; gap: 12px; align-items: flex-start; background: rgba(34,211,160,0.06); border: 1px solid rgba(34,211,160,0.2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px; }
-  .mic-box-icon { font-size: 24px; flex-shrink: 0; }
-  .mic-box-body { flex: 1; }
-  .mic-box-title { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 3px; }
-  .mic-box-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
-  .mic-btn { margin-top: 8px; background: rgba(34,211,160,0.12); border: 1px solid rgba(34,211,160,0.3); border-radius: 6px; color: var(--green); font-family: var(--font); font-size: 12px; font-weight: 600; padding: 6px 14px; cursor: pointer; display: inline-block; transition: background 0.2s; }
-  .mic-btn:hover { background: rgba(34,211,160,0.22); }
-  .mic-btn:disabled { opacity: 0.5; cursor: default; }
-  .mic-status { font-size: 11px; margin-top: 5px; }
-  .mic-status.ok  { color: var(--green); }
-  .mic-status.err { color: var(--red); }
+.inp-wrap{position:relative;margin-bottom:6px}
+.inp-wrap input{
+  width:100%;border:1.5px solid #e2e8f0;border-radius:8px;
+  font-family:var(--mono);font-size:12px;padding:11px 42px 11px 14px;
+  color:#1e293b;background:#f8fafc;outline:none;transition:border-color .18s;
+}
+.inp-wrap input:focus{border-color:#4f46e5;background:#fff}
+.inp-wrap input::placeholder{color:#94a3b8}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:#94a3b8}
+.hint{font-size:11px;color:#94a3b8;margin-bottom:22px;line-height:1.6}
+.hint a{color:#4f46e5;text-decoration:none}
+.err{color:#dc2626;font-size:12px;margin-top:4px;display:none}
 
-  /* Rate-limit notice */
-  .rate-notice { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #d4a017; line-height: 1.6; }
-  .rate-notice strong { color: var(--amber); }
+.notice{
+  background:#fffbeb;border:1px solid #fde68a;border-radius:8px;
+  padding:11px 14px;margin-bottom:20px;font-size:12px;color:#92400e;line-height:1.6;
+}
+.notice strong{color:#d97706}
 
-  .start-btn { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: var(--radius); color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600; padding: 14px; cursor: pointer; transition: opacity 0.2s; }
-  .start-btn:hover { opacity: 0.88; }
+.mic-box{
+  display:flex;gap:12px;align-items:flex-start;
+  background:#f0fdf4;border:1px solid #86efac;border-radius:8px;
+  padding:14px;margin-bottom:22px;
+}
+.mic-box-icon{font-size:24px;flex-shrink:0}
+.mic-box-title{font-size:13px;font-weight:600;color:#065f46;margin-bottom:3px}
+.mic-box-desc{font-size:11px;color:#6b7280;line-height:1.5}
+.mic-btn{
+  margin-top:8px;background:#059669;color:#fff;border:none;border-radius:6px;
+  font-family:var(--font);font-size:12px;font-weight:600;padding:7px 16px;
+  cursor:pointer;transition:background .18s;display:inline-block;
+}
+.mic-btn:hover{background:#047857}
+.mic-btn:disabled{background:#9ca3af;cursor:default}
+.mic-st{font-size:11px;margin-top:5px}
+.mic-st.ok{color:#059669}
+.mic-st.no{color:#dc2626}
 
-  /* ══ MAIN APP ══ */
-  #main-app { display: none; height: 100vh; flex-direction: column; }
-  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .topbar-left  { display: flex; align-items: center; gap: 10px; }
-  .topbar-right { display: flex; align-items: center; gap: 8px; }
-  .app-logo { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--green)); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-  .app-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
-  .pill { display: flex; align-items: center; gap: 5px; border-radius: 20px; padding: 4px 11px; font-size: 11px; font-weight: 500; border: 1px solid; }
-  .pill-mic  { background: rgba(34,211,160,0.08); border-color: rgba(34,211,160,0.2); color: var(--green); }
-  .pill-hint { background: rgba(124,109,250,0.08); border-color: rgba(124,109,250,0.2); color: #a090ff; animation: hint-pulse 3s ease-in-out infinite; }
-  @keyframes hint-pulse { 0%,100%{opacity:.65} 50%{opacity:1} }
-  .pill-ai   { background: var(--surface2); border-color: var(--border); color: var(--text); }
-  .pill-dot  { width: 6px; height: 6px; border-radius: 50%; }
-  .pill-dot.claude { background: var(--claude); }
-  .pill-dot.openai { background: var(--openai); }
-  .pill-dot.gemini { background: var(--gemini); }
-  .icon-btn  { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: var(--text2); transition: all 0.15s; }
-  .icon-btn:hover { border-color: var(--border2); color: var(--text); }
+.go-btn{
+  width:100%;background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  border:none;border-radius:10px;color:#fff;font-family:var(--font);
+  font-size:15px;font-weight:600;padding:15px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(79,70,229,.4);transition:opacity .18s;
+}
+.go-btn:hover{opacity:.9}
 
-  /* Feed */
-  .feed { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-  .feed::-webkit-scrollbar { width: 3px; }
-  .feed::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+/* ═══════════════ MAIN APP ═══════════════ */
+#app{display:none;height:100vh;flex-direction:column;background:var(--bg)}
 
-  /* Empty state */
-  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 40px; }
-  .empty-icon { width: 68px; height: 68px; background: var(--surface2); border: 1px solid var(--border); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-  .empty-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg,#fff,var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .empty-sub { font-size: 13px; color: var(--text2); max-width: 340px; line-height: 1.6; }
-  .tips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 480px; width: 100%; }
-  .tip { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: left; }
-  .tip-i { font-size: 16px; margin-bottom: 5px; }
-  .tip-t { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
-  .tip-d { font-size: 10px; color: var(--text2); line-height: 1.4; }
+/* Top bar */
+.bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:56px;background:#fff;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.bar-l{display:flex;align-items:center;gap:10px}
+.bar-logo{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.bar-title{font-size:15px;font-weight:700;color:#1e293b}
+.bar-r{display:flex;align-items:center;gap:8px}
+.tag{
+  display:flex;align-items:center;gap:5px;border-radius:20px;
+  padding:5px 12px;font-size:11px;font-weight:500;border:1.5px solid;
+}
+.tag-mic{background:#f0fdf4;border-color:#86efac;color:#059669}
+.tag-hint{
+  background:#ede9fe;border-color:#c4b5fd;color:#5b21b6;
+  animation:hp 3s ease-in-out infinite;
+}
+@keyframes hp{0%,100%{opacity:.7}50%{opacity:1}}
+.tag-ai{background:#f8fafc;border-color:#e2e8f0;color:#374151}
+.tag-dot{width:7px;height:7px;border-radius:50%}
+.td-g{background:#4285f4}
+.td-c{background:#d97706}
+.td-o{background:#059669}
+.cfg-btn{
+  background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;color:#64748b;transition:all .15s;
+}
+.cfg-btn:hover{border-color:#a5b4fc;color:#4f46e5}
 
-  /* QA card */
-  .qa { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: pop .28s ease; }
-  @keyframes pop { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  .qa-q { display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); }
-  .qa-q-badge { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; background: rgba(124,109,250,0.15); border: 1px solid rgba(124,109,250,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
-  .qa-q-text  { font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--text); }
-  .qa-a { padding: 14px 18px; }
-  .qa-a-meta  { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
-  .qa-a-dot   { width: 6px; height: 6px; border-radius: 50%; }
-  .qa-a-name  { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-  .qa-a-time  { font-size: 10px; color: var(--text2); margin-left: auto; }
-  .qa-a-body  { font-size: 13px; line-height: 1.75; color: var(--text2); white-space: pre-wrap; word-break: break-word; }
+/* Feed area */
+.feed{
+  flex:1;overflow-y:auto;padding:24px 20px 32px;
+  display:flex;flex-direction:column;gap:20px;
+  scroll-behavior:smooth;
+}
+.feed::-webkit-scrollbar{width:5px}
+.feed::-webkit-scrollbar-track{background:transparent}
+.feed::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:5px}
 
-  /* Retry countdown inside qa card */
-  .retry-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--amber); margin-bottom: 6px; }
-  .retry-bar { flex: 1; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
-  .retry-fill { height: 100%; background: var(--amber); transition: width 1s linear; }
+/* Empty */
+.empty{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;gap:16px;padding:40px;min-height:400px;
+}
+.e-icon{
+  width:72px;height:72px;border-radius:20px;
+  background:linear-gradient(135deg,#ede9fe,#dbeafe);
+  border:2px solid #c4b5fd;
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+}
+.e-title{font-size:22px;font-weight:700;color:#1e293b;letter-spacing:-.4px}
+.e-sub{font-size:14px;color:#64748b;max-width:340px;line-height:1.65}
+.e-tips{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;width:100%}
+.e-tip{
+  background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;
+  padding:14px;text-align:left;box-shadow:var(--shadow);
+}
+.et-i{font-size:18px;margin-bottom:6px}
+.et-t{font-size:12px;font-weight:600;color:#1e293b;margin-bottom:3px}
+.et-d{font-size:11px;color:#64748b;line-height:1.45}
 
-  .dot-loader { display: flex; gap: 4px; }
-  .dot-loader span { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: dl 1.2s ease-in-out infinite; }
-  .dot-loader span:nth-child(2){ animation-delay:.2s }
-  .dot-loader span:nth-child(3){ animation-delay:.4s }
-  @keyframes dl { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+/* QA Card */
+.qa{
+  background:#fff;border:1.5px solid #e2e8f0;border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow);
+  animation:pop .25s ease;
+}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--accent); vertical-align: middle; margin-left: 1px; animation: cur .7s step-end infinite; }
-  @keyframes cur { 0%,100%{opacity:1} 50%{opacity:0} }
+/* Question row */
+.qa-q{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:16px 20px;
+  background:linear-gradient(135deg,#f8fafc,#f1f5f9);
+  border-bottom:1.5px solid #e2e8f0;
+}
+.qa-q-num{
+  min-width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;
+}
+.qa-q-text{font-size:14px;font-weight:600;color:#1e293b;line-height:1.5;padding-top:3px}
 
-  /* Status bar */
-  .statusbar { padding: 7px 18px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .status-left { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
-  .status-led  { width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 5px var(--green); animation: hint-pulse 2s ease-in-out infinite; }
-  .status-clear { background: none; border: none; font-family: var(--font); font-size: 11px; color: var(--text3); cursor: pointer; padding: 2px 8px; border-radius: 4px; }
-  .status-clear:hover { background: var(--surface2); color: var(--text2); }
+/* Answer row */
+.qa-a{padding:20px}
+.qa-a-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.qa-a-badge{
+  display:flex;align-items:center;gap:5px;border-radius:6px;
+  padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+}
+.b-g{background:#dbeafe;color:#1d4ed8}
+.b-c{background:#fef3c7;color:#92400e}
+.b-o{background:#d1fae5;color:#065f46}
+.qa-a-time{font-size:11px;color:#94a3b8;margin-left:auto}
 
-  /* Recording overlay */
-  #rec-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.88); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; z-index: 200; }
-  #rec-overlay.on { display: flex; }
-  .rec-ring { width: 110px; height: 110px; position: relative; display: flex; align-items: center; justify-content: center; }
-  .rec-ring::before,.rec-ring::after { content:''; position:absolute; border-radius:50%; border: 2px solid var(--red); animation: rp 1.6s ease-out infinite; }
-  .rec-ring::after { animation-delay:.55s }
-  @keyframes rp { 0%{width:72px;height:72px;opacity:.9} 100%{width:120px;height:120px;opacity:0} }
-  .rec-core { width: 66px; height: 66px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 28px rgba(255,79,109,.45); animation: rs 1s ease-in-out infinite alternate; }
-  @keyframes rs { from{transform:scale(1)} to{transform:scale(1.06)} }
-  .rec-label { color:#fff; font-size:15px; font-weight:600; }
-  .rec-sub   { color:rgba(255,255,255,.4); font-size:12px; }
-  .rec-box   { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; max-width: 440px; width: 90vw; font-size: 13px; color: var(--text2); min-height: 44px; line-height: 1.5; font-family: var(--mono); text-align: center; }
-  .rec-cancel{ background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text2); font-family: var(--font); font-size: 12px; padding: 7px 18px; cursor: pointer; }
-  .rec-cancel:hover { color: var(--text); }
+/* Answer body — rendered markdown */
+.qa-a-body{font-size:14px;line-height:1.8;color:#334155}
+.qa-a-body p{margin-bottom:12px}
+.qa-a-body p:last-child{margin-bottom:0}
+.qa-a-body strong{font-weight:700;color:#1e293b}
+.qa-a-body em{font-style:italic;color:#475569}
+.qa-a-body ul,.qa-a-body ol{padding-left:20px;margin-bottom:12px}
+.qa-a-body li{margin-bottom:6px;line-height:1.65}
+.qa-a-body h1,.qa-a-body h2,.qa-a-body h3{
+  font-weight:700;color:#1e293b;margin:16px 0 8px;
+}
+.qa-a-body h1{font-size:18px}
+.qa-a-body h2{font-size:16px}
+.qa-a-body h3{font-size:14px;color:#374151}
+.qa-a-body code{
+  background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;
+  font-family:var(--mono);font-size:12px;padding:1px 6px;color:#be185d;
+}
+.qa-a-body blockquote{
+  border-left:3px solid #818cf8;background:#f8f7ff;
+  padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;
+  color:#4338ca;font-style:italic;
+}
+/* Section labels like "1. **Direct Answer**" */
+.section-block{
+  background:#f8fafc;border-left:3px solid #818cf8;
+  border-radius:0 8px 8px 0;padding:12px 14px;margin:10px 0;
+}
+.section-block .s-head{
+  font-size:12px;font-weight:700;color:#4f46e5;
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;
+}
+.section-block .s-body{font-size:14px;color:#334155;line-height:1.75}
+
+/* Retry countdown */
+.retry-wrap{padding:4px 0}
+.retry-msg{display:flex;align-items:center;gap:8px;font-size:13px;color:#d97706;margin-bottom:8px;font-weight:500}
+.r-bar{flex:1;height:4px;background:#fde68a;border-radius:2px;overflow:hidden}
+.r-fill{height:100%;background:#d97706;transition:width 1s linear}
+
+/* Loader */
+.loader{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:13px;padding:4px 0}
+.dots{display:flex;gap:4px}
+.dots span{
+  width:7px;height:7px;border-radius:50%;background:#a5b4fc;
+  animation:db 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* Cursor */
+.cur{
+  display:inline-block;width:2px;height:15px;
+  background:#4f46e5;vertical-align:middle;margin-left:2px;
+  animation:cb .65s step-end infinite;
+}
+@keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Error in card */
+.qa-err{
+  display:flex;align-items:flex-start;gap:10px;
+  background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;
+  padding:12px 14px;font-size:13px;color:#dc2626;line-height:1.5;
+}
+
+/* Bottom bar */
+.bot{
+  padding:10px 20px;background:#fff;border-top:1.5px solid #e2e8f0;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;box-shadow:0 -1px 4px rgba(0,0,0,.04);
+}
+.bot-l{display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b}
+.bot-led{
+  width:7px;height:7px;border-radius:50%;
+  background:#22c55e;box-shadow:0 0 6px #22c55e;
+  animation:hp 2s ease-in-out infinite;
+}
+.clr-btn{
+  background:none;border:1.5px solid #e2e8f0;border-radius:6px;
+  font-family:var(--font);font-size:11px;color:#64748b;
+  cursor:pointer;padding:5px 12px;transition:all .15s;
+}
+.clr-btn:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
+
+/* Recording overlay */
+#rec{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,.92);
+  backdrop-filter:blur(12px);
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:20px;z-index:200;
+}
+#rec.on{display:flex}
+.rec-ring{width:120px;height:120px;position:relative;display:flex;align-items:center;justify-content:center}
+.rec-ring::before,.rec-ring::after{
+  content:'';position:absolute;border-radius:50%;
+  border:2.5px solid #f87171;animation:rp 1.6s ease-out infinite;
+}
+.rec-ring::after{animation-delay:.55s}
+@keyframes rp{0%{width:72px;height:72px;opacity:.9}100%{width:125px;height:125px;opacity:0}}
+.rec-core{
+  width:68px;height:68px;border-radius:50%;
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;box-shadow:0 0 30px rgba(239,68,68,.5);
+  animation:rs 1s ease-in-out infinite alternate;
+}
+@keyframes rs{from{transform:scale(1)}to{transform:scale(1.07)}}
+.rec-title{color:#fff;font-size:16px;font-weight:600}
+.rec-hint{color:rgba(255,255,255,.5);font-size:12px}
+.rec-text{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:10px;padding:12px 18px;max-width:460px;width:90vw;
+  font-size:14px;color:rgba(255,255,255,.8);min-height:48px;
+  line-height:1.55;font-family:var(--mono);text-align:center;
+}
+.rec-stop{
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+  border-radius:8px;color:rgba(255,255,255,.7);font-family:var(--font);
+  font-size:12px;padding:8px 22px;cursor:pointer;transition:all .15s;
+}
+.rec-stop:hover{background:rgba(255,255,255,.18);color:#fff}
 </style>
 </head>
 <body>
 
-<!-- ══ SETUP ══ -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <div class="setup-logo">
-      <div class="setup-logo-icon">🎯</div>
+<!-- ══════════ SETUP ══════════ -->
+<div id="setup">
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon">🎯</div>
       <h1>InterviewAI</h1>
     </div>
-    <p class="setup-tagline">Right-click → speak → instant expert answer</p>
+    <p class="brand-sub">Right-click → speak → structured expert answer</p>
 
-    <div class="section-label">Select AI Model</div>
-    <div class="ai-grid">
-      <div class="ai-card selected" data-ai="gemini" onclick="pickAI('gemini')">
-        <div class="ai-avatar gemini">G</div>
-        <div class="ai-name">Gemini</div>
-        <div class="ai-maker">Google</div>
+    <div class="s-label">Choose AI Model</div>
+    <div class="ai-row">
+      <div class="ai-opt sel-gemini" data-ai="gemini" onclick="pickAI('gemini')">
+        <div class="ai-av av-g">G</div>
+        <div class="ai-nm">Gemini</div>
+        <div class="ai-by">Google</div>
       </div>
-      <div class="ai-card" data-ai="claude" onclick="pickAI('claude')">
-        <div class="ai-avatar claude">C</div>
-        <div class="ai-name">Claude</div>
-        <div class="ai-maker">Anthropic</div>
+      <div class="ai-opt" data-ai="claude" onclick="pickAI('claude')">
+        <div class="ai-av av-c">C</div>
+        <div class="ai-nm">Claude</div>
+        <div class="ai-by">Anthropic</div>
       </div>
-      <div class="ai-card" data-ai="openai" onclick="pickAI('openai')">
-        <div class="ai-avatar openai">G</div>
-        <div class="ai-name">ChatGPT</div>
-        <div class="ai-maker">OpenAI</div>
+      <div class="ai-opt" data-ai="openai" onclick="pickAI('openai')">
+        <div class="ai-av av-o">G</div>
+        <div class="ai-nm">ChatGPT</div>
+        <div class="ai-by">OpenAI</div>
       </div>
     </div>
 
-    <div class="section-label" id="key-label">Gemini API Key</div>
-    <div class="key-wrap">
-      <input type="password" id="key-input" placeholder="AIzaSy..." spellcheck="false">
-      <button class="key-eye" onclick="toggleEye()">👁</button>
+    <div class="s-label" id="klabel">Gemini API Key</div>
+    <div class="inp-wrap">
+      <input type="password" id="kval" placeholder="AIzaSy…" spellcheck="false" value="AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo">
+      <button class="eye-btn" onclick="toggleEye()">👁</button>
     </div>
-    <div class="err" id="key-err"></div>
-    <div class="key-hint" id="key-hint">
-      Free tier: <strong style="color:var(--amber)">use gemini-2.5-flash</strong> (already set). Get key →
-      <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+    <div class="err" id="kerr"></div>
+    <div class="hint" id="khint">
+      Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong> — 10 req/min. 
+      Get key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
     </div>
 
-    <div class="rate-notice" id="rate-notice">
-      ⚠️ <strong>Free tier limit:</strong> Gemini free tier allows ~15 requests/min.
-      The app uses <strong>gemini-2.5-flash</strong> (free tier compatible) and will
-      <strong>auto-retry</strong> with a countdown if rate-limited.
-      For unlimited use, enable billing at aistudio.google.com.
+    <div class="notice" id="rnotice">
+      ⚡ <strong>Auto-retry enabled:</strong> If rate-limited, the app waits and retries automatically with a live countdown — no action needed from you.
     </div>
 
     <div class="mic-box">
       <div class="mic-box-icon">🎤</div>
-      <div class="mic-box-body">
-        <div class="mic-box-title">Grant Microphone — Once</div>
-        <div class="mic-box-desc">Click below now so Chrome never asks again during your interview.</div>
-        <button class="mic-btn" id="mic-btn" onclick="grantMic()">Allow Microphone</button>
-        <div class="mic-status" id="mic-st"></div>
+      <div>
+        <div class="mic-box-title">Allow Microphone — One Time Only</div>
+        <div class="mic-box-desc">Click once now. Chrome remembers it — no more popups during your interview.</div>
+        <button class="mic-btn" id="mbtn" onclick="grantMic()">Allow Microphone</button>
+        <div class="mic-st" id="mst"></div>
       </div>
     </div>
 
-    <button class="start-btn" onclick="launch()">Start Interview Assistant →</button>
+    <button class="go-btn" onclick="launch()">Start Interview Assistant →</button>
   </div>
 </div>
 
-<!-- ══ MAIN APP ══ -->
-<div id="main-app">
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="app-logo">🎯</div>
-      <span class="app-title">InterviewAI</span>
+<!-- ══════════ MAIN APP ══════════ -->
+<div id="app">
+  <div class="bar">
+    <div class="bar-l">
+      <div class="bar-logo">🎯</div>
+      <span class="bar-title">InterviewAI</span>
     </div>
-    <div class="topbar-right">
-      <div class="pill pill-mic"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:hint-pulse 2s infinite"></span> Mic ready</div>
-      <div class="pill pill-hint">🖱 Right-click to speak</div>
-      <div class="pill pill-ai">
-        <span class="pill-dot gemini" id="badge-dot"></span>
-        <span id="badge-txt">Gemini</span>
+    <div class="bar-r">
+      <div class="tag tag-mic">
+        <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 5px #22c55e"></span>
+        Mic ready
       </div>
-      <button class="icon-btn" onclick="goSettings()" title="Settings">⚙️</button>
+      <div class="tag tag-hint">🖱 Right-click to speak</div>
+      <div class="tag tag-ai">
+        <span class="tag-dot td-g" id="bdot"></span>
+        <span id="btxt">Gemini</span>
+      </div>
+      <button class="cfg-btn" onclick="goSet()">⚙️</button>
     </div>
   </div>
 
   <div class="feed" id="feed">
-    <div class="empty" id="empty-state">
-      <div class="empty-icon">🎤</div>
-      <div class="empty-title">Ready for Your Interview</div>
-      <div class="empty-sub">Right-click anywhere on this screen — your mic starts instantly. Ask any interview question and get a structured expert answer.</div>
-      <div class="tips">
-        <div class="tip"><div class="tip-i">🖱</div><div class="tip-t">Right-click → instant mic</div><div class="tip-d">No menu needed — recording starts immediately</div></div>
-        <div class="tip"><div class="tip-i">🎤</div><div class="tip-t">Speak naturally</div><div class="tip-d">Ask any interview question clearly</div></div>
-        <div class="tip"><div class="tip-i">⚡</div><div class="tip-t">Text-only answer</div><div class="tip-d">Fast, clean, no audio output</div></div>
-        <div class="tip"><div class="tip-i">🔁</div><div class="tip-t">Auto-retry</div><div class="tip-d">Rate limits handled automatically</div></div>
+    <div class="empty" id="empty">
+      <div class="e-icon">🎤</div>
+      <div class="e-title">Ready for Your Interview</div>
+      <div class="e-sub">Right-click anywhere — your microphone starts instantly. Ask any interview question and get a clean, structured answer.</div>
+      <div class="e-tips">
+        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click = instant mic</div><div class="et-d">No menu — recording starts immediately</div></div>
+        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Speak naturally</div><div class="et-d">Ask any interview question</div></div>
+        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read</div></div>
+        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically</div></div>
       </div>
     </div>
   </div>
 
-  <div class="statusbar">
-    <div class="status-left">
-      <div class="status-led"></div>
-      <span id="status-txt">Ready — right-click anywhere to start</span>
-    </div>
-    <button class="status-clear" onclick="clearFeed()">Clear history</button>
+  <div class="bot">
+    <div class="bot-l"><div class="bot-led"></div><span id="stxt">Ready — right-click anywhere to start</span></div>
+    <button class="clr-btn" onclick="clearFeed()">🗑 Clear history</button>
   </div>
 </div>
 
-<!-- ══ RECORDING OVERLAY ══ -->
-<div id="rec-overlay">
+<!-- Recording overlay -->
+<div id="rec">
   <div class="rec-ring"><div class="rec-core">🎤</div></div>
-  <div class="rec-label">Listening…</div>
-  <div class="rec-sub">Speak your interview question, then pause</div>
-  <div class="rec-box" id="rec-txt">Waiting for speech…</div>
-  <button class="rec-cancel" onclick="stopRec()">Cancel  (Esc)</button>
+  <div class="rec-title">Listening…</div>
+  <div class="rec-hint">Speak your question clearly, then pause</div>
+  <div class="rec-text" id="rtxt">Waiting for speech…</div>
+  <button class="rec-stop" onclick="stopRec()">Stop / Cancel &nbsp;(Esc)</button>
 </div>
 
 <script>
 /* ── state ── */
-const keys = { gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo', claude:'', openai:'' };
-let ai = 'gemini', micStream = null, recog = null, recording = false, qid = 0;
+const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo',claude:'',openai:''};
+let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
 
-/* ── setup helpers ── */
-function pickAI(v) {
-  keys[ai] = document.getElementById('key-input').value.trim(); // save current
-  ai = v;
-  document.querySelectorAll('.ai-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector(`.ai-card[data-ai="${v}"]`).classList.add('selected');
-  const labels = { gemini:'Gemini API Key', claude:'Anthropic API Key', openai:'OpenAI API Key' };
-  const ph     = { gemini:'AIzaSy…', claude:'sk-ant-…', openai:'sk-proj-…' };
-  const hints  = {
-    gemini: 'Free tier: <strong style="color:var(--amber)">gemini-2.5-flash</strong> (auto-retry on limits). Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
-    claude: 'Key → <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
-    openai: 'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
+/* ── setup ── */
+function pickAI(v){
+  keys[ai]=document.getElementById('kval').value.trim();
+  ai=v;
+  document.querySelectorAll('.ai-opt').forEach(c=>c.className='ai-opt');
+  document.querySelector(`[data-ai="${v}"]`).classList.add('ai-opt','sel-'+v);
+  const L={gemini:'Gemini API Key',claude:'Anthropic API Key',openai:'OpenAI API Key'};
+  const P={gemini:'AIzaSy…',claude:'sk-ant-…',openai:'sk-proj-…'};
+  const H={
+    gemini:'Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong> — 10 req/min. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
+    claude:'Key → <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
+    openai:'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
   };
-  document.getElementById('key-label').textContent = labels[v];
-  document.getElementById('key-input').placeholder = ph[v];
-  document.getElementById('key-input').value = keys[v];
-  document.getElementById('key-hint').innerHTML = hints[v];
-  document.getElementById('rate-notice').style.display = v === 'gemini' ? 'block' : 'none';
+  document.getElementById('klabel').textContent=L[v];
+  document.getElementById('kval').placeholder=P[v];
+  document.getElementById('kval').value=keys[v];
+  document.getElementById('khint').innerHTML=H[v];
+  document.getElementById('rnotice').style.display=v==='gemini'?'block':'none';
 }
 
-function toggleEye() {
-  const i = document.getElementById('key-input');
-  i.type = i.type === 'password' ? 'text' : 'password';
-}
+function toggleEye(){const i=document.getElementById('kval');i.type=i.type==='password'?'text':'password'}
 
-async function grantMic() {
-  const btn = document.getElementById('mic-btn');
-  const st  = document.getElementById('mic-st');
-  btn.textContent = 'Requesting…'; btn.disabled = true;
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio:true });
-    st.textContent = '✓ Granted — no more popups!'; st.className = 'mic-status ok';
-    btn.style.display = 'none';
-  } catch {
-    st.textContent = '✗ Denied — allow mic in Chrome settings'; st.className = 'mic-status err';
-    btn.textContent = 'Try Again'; btn.disabled = false;
+async function grantMic(){
+  const b=document.getElementById('mbtn'),s=document.getElementById('mst');
+  b.textContent='Requesting…';b.disabled=true;
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    s.textContent='✓ Microphone granted — no more popups!';s.className='mic-st ok';b.style.display='none';
+  }catch{
+    s.textContent='✗ Denied — allow mic in Chrome settings';s.className='mic-st no';
+    b.textContent='Try Again';b.disabled=false;
   }
 }
 
-function launch() {
-  keys[ai] = document.getElementById('key-input').value.trim();
-  const err = document.getElementById('key-err');
-  if (!keys[ai]) { err.textContent = 'Please enter your API key.'; err.style.display='block'; return; }
-  err.style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'flex';
+function launch(){
+  keys[ai]=document.getElementById('kval').value.trim();
+  const e=document.getElementById('kerr');
+  if(!keys[ai]){e.textContent='Please enter your API key.';e.style.display='block';return}
+  e.style.display='none';
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='flex';
   syncBadge();
 }
 
-function syncBadge() {
-  const nm = { gemini:'Gemini', claude:'Claude', openai:'ChatGPT' };
-  document.getElementById('badge-txt').textContent = nm[ai];
-  document.getElementById('badge-dot').className = `pill-dot ${ai}`;
+function syncBadge(){
+  const N={gemini:'Gemini',claude:'Claude',openai:'ChatGPT'};
+  const C={gemini:'td-g',claude:'td-c',openai:'td-o'};
+  document.getElementById('btxt').textContent=N[ai];
+  document.getElementById('bdot').className='tag-dot '+C[ai];
 }
 
-function goSettings() {
-  document.getElementById('main-app').style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'flex';
-  document.getElementById('key-input').value = keys[ai];
+function goSet(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup').style.display='flex';
+  document.getElementById('kval').value=keys[ai];
 }
 
 /* ── right-click = instant record ── */
-document.addEventListener('contextmenu', e => {
-  if (document.getElementById('main-app').style.display === 'flex') {
+document.addEventListener('contextmenu',e=>{
+  if(document.getElementById('app').style.display==='flex'){
     e.preventDefault();
-    if (!recording) startRec();
+    if(!isRec && !isBusy) startRec();
+    else if(isBusy) showBusyFlash();
   }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') stopRec(); });
+document.addEventListener('keydown',e=>{if(e.key==='Escape')stopRec()});
 
-function startRec() {
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    alert('Voice input needs Google Chrome or Edge.'); return;
+function startRec(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
+    alert('Please use Google Chrome or Edge for voice input.');return;
   }
-  document.getElementById('rec-overlay').classList.add('on');
-  document.getElementById('rec-txt').textContent = 'Waiting for speech…';
-  document.getElementById('status-txt').textContent = '🎤 Recording — speak now…';
-  recording = true;
+  document.getElementById('rec').classList.add('on');
+  document.getElementById('rtxt').textContent='Waiting for speech…';
+  document.getElementById('stxt').textContent='🎤 Recording — speak now…';
+  isRec=true;
 
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recog = new SR();
-  recog.continuous = false; recog.interimResults = true; recog.lang = 'en-US';
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();recog.continuous=false;recog.interimResults=true;recog.lang='en-US';
 
-  recog.onresult = e => {
-    let f='', t='';
-    for (let i=e.resultIndex;i<e.results.length;i++) {
-      if (e.results[i].isFinal) f+=e.results[i][0].transcript;
+  recog.onresult=e=>{
+    let f='',t='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)f+=e.results[i][0].transcript;
       else t+=e.results[i][0].transcript;
     }
-    document.getElementById('rec-txt').textContent = f||t||'Listening…';
+    document.getElementById('rtxt').textContent=f||t||'Listening…';
   };
 
-  recog.onend = () => {
-    const q = document.getElementById('rec-txt').textContent.trim();
-    document.getElementById('rec-overlay').classList.remove('on');
-    recording = false;
-    if (q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
-    else setStatus('Ready — right-click anywhere to start');
+  recog.onend=()=>{
+    const q=document.getElementById('rtxt').textContent.trim();
+    document.getElementById('rec').classList.remove('on');
+    isRec=false;
+    if(q&&q!=='Waiting for speech…'&&q!=='Listening…') answerQ(q);
+    else setSt('Ready — right-click anywhere to start');
   };
 
-  recog.onerror = err => {
-    document.getElementById('rec-overlay').classList.remove('on');
-    recording = false;
-    const m = { 'not-allowed':'Mic blocked — grant permission on setup screen', 'no-speech':'No speech — try again' };
-    setStatus('⚠ ' + (m[err.error]||err.error));
-    setTimeout(()=>setStatus('Ready — right-click anywhere to start'), 4000);
+  recog.onerror=err=>{
+    document.getElementById('rec').classList.remove('on');isRec=false;
+    const m={'not-allowed':'Mic blocked — grant permission on setup screen','no-speech':'No speech detected — try again'};
+    setSt('⚠ '+(m[err.error]||err.error));
+    setTimeout(()=>setSt('Ready — right-click anywhere to start'),4000);
   };
-
   recog.start();
 }
 
-function stopRec() {
-  if (recog) { try{ recog.stop() }catch{} recog=null; }
-  document.getElementById('rec-overlay').classList.remove('on');
-  recording = false;
-  setStatus('Ready — right-click anywhere to start');
+function stopRec(){
+  if(recog){try{recog.stop()}catch{}recog=null}
+  document.getElementById('rec').classList.remove('on');
+  isRec=false;setSt('Ready — right-click anywhere to start');
 }
 
 /* ── answer pipeline ── */
-async function answerQ(question) {
-  qid++;
-  const id = qid;
-  const es = document.getElementById('empty-state');
-  if (es) es.style.display = 'none';
-  setStatus('⏳ Generating answer…');
+async function answerQ(question){
+  qnum++;const id=qnum;
+  isBusy=true;
+  const empty=document.getElementById('empty');
+  if(empty)empty.style.display='none';
+  setSt('⏳ Generating answer…');
+  syncHint(true);
 
-  const cols  = { gemini:'var(--gemini)', claude:'var(--claude)', openai:'var(--openai)' };
-  const names = { gemini:'Gemini', claude:'Claude', openai:'ChatGPT' };
-  const now   = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const COLS={gemini:'#4285f4',claude:'#d97706',openai:'#059669'};
+  const BADGE={gemini:'b-g',claude:'b-c',openai:'b-o'};
+  const NAMES={gemini:'Gemini',claude:'Claude',openai:'ChatGPT'};
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
-  const card = document.createElement('div');
-  card.className = 'qa';
-  card.innerHTML = `
+  const card=document.createElement('div');
+  card.className='qa';card.id='card-'+id;
+  card.innerHTML=`
     <div class="qa-q">
-      <div class="qa-q-badge">Q</div>
+      <div class="qa-q-num">${id}</div>
       <div class="qa-q-text">${esc(question)}</div>
     </div>
-    <div class="qa-a" id="qa-a-${id}">
+    <div class="qa-a" id="qa-${id}">
       <div class="qa-a-meta">
-        <div class="qa-a-dot" style="background:${cols[ai]}"></div>
-        <span class="qa-a-name" style="color:${cols[ai]}">${names[ai]}</span>
+        <div class="qa-a-badge ${BADGE[ai]}">${NAMES[ai]}</div>
         <span class="qa-a-time">${now}</span>
       </div>
-      <div id="qa-body-${id}" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)">
-        <div class="dot-loader"><span></span><span></span><span></span></div> Generating…
+      <div id="body-${id}" class="loader">
+        <div class="dots"><span></span><span></span><span></span></div>
+        Generating answer…
       </div>
     </div>`;
-  document.getElementById('feed').appendChild(card);
-  card.scrollIntoView({ behavior:'smooth', block:'end' });
 
-  try {
-    if (ai === 'claude')  await doClaude(question, id);
-    else if (ai === 'openai') { const a = await doOpenAI(question); showText(id, a, card); }
-    else { const a = await doGemini(question, id); showText(id, a, card); }
-    setStatus(`✓ ${id} question${id>1?'s':''} answered — right-click to ask more`);
-  } catch(e) {
-    document.getElementById('qa-body-'+id).innerHTML =
-      `<span style="color:var(--red)">⚠ ${esc(e.message||'API error')}</span>`;
-    setStatus('⚠ Error — see answer card for details');
+  document.getElementById('feed').appendChild(card);
+  // Scroll to bottom — new card always visible
+  scrollBottom();
+
+  try{
+    let text='';
+    if(ai==='claude') await doClaude(question,id);
+    else if(ai==='openai'){text=await doOpenAI(question);renderText(id,text,card);}
+    else{text=await doGemini(question,id);renderText(id,text,card);}
+    setSt(`✓ Question ${id} answered — right-click to ask more`);
+    isBusy=false; syncHint(false);
+  }catch(e){
+    document.getElementById('body-'+id).outerHTML=`
+      <div class="qa-err">⚠️ <span>${esc(e.message||'API error — check your key')}</span></div>`;
+    setSt('⚠ Error — see the answer card');
+    isBusy=false; syncHint(false);
   }
 }
 
-/* ── Gemini 1.5 Flash with live countdown retry ── */
-async function doGemini(question, cardId) {
-  const prompt = `You are an expert interview coach with deep knowledge across all industries and roles.
+/* ── MARKDOWN RENDERER ── */
+function renderMarkdown(text){
+  // Process bold **text**
+  let html=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // italic *text*
+  html=html.replace(/\*([^*\n]+?)\*/g,'<em>$1</em>');
+  // Split into lines and process
+  const lines=html.split('\n');
+  let out='',inUL=false,inOL=false;
 
-Answer the following interview question in a clear, professional, and structured format:
+  for(let i=0;i<lines.length;i++){
+    const raw=lines[i];
+    const line=raw.trim();
+
+    // Numbered list item: "1. " or "2. " etc
+    if(/^\d+\.\s/.test(line)){
+      if(inUL){out+='</ul>';inUL=false}
+      if(!inOL){out+='<ol>';inOL=true}
+      // Check if it's a section header like "1. **Direct Answer**"
+      const sectionMatch=line.match(/^\d+\.\s+<strong>(.*?)<\/strong>(.*)/);
+      if(sectionMatch){
+        if(inOL){out+='</ol>';inOL=false}
+        const restLines=[];
+        let j=i+1;
+        while(j<lines.length&&lines[j].trim()!==''&&!/^\d+\./.test(lines[j].trim())){
+          restLines.push(lines[j].trim());j++;
+        }
+        i=j-1;
+        out+=`<div class="section-block">
+          <div class="s-head">${sectionMatch[1]}</div>
+          <div class="s-body">${sectionMatch[2].trim()||restLines.join(' ')}</div>
+        </div>`;
+        continue;
+      }
+      out+=`<li>${line.replace(/^\d+\.\s/,'')}</li>`;
+      continue;
+    }
+
+    // Bullet list: "* " or "- " or "• "
+    if(/^[*\-•]\s/.test(line)){
+      if(inOL){out+='</ol>';inOL=false}
+      if(!inUL){out+='<ul>';inUL=true}
+      out+=`<li>${line.replace(/^[*\-•]\s/,'')}</li>`;
+      continue;
+    }
+
+    // Close lists
+    if(inUL){out+='</ul>';inUL=false}
+    if(inOL){out+='</ol>';inOL=false}
+
+    // Heading ## or ###
+    if(/^###\s/.test(line)){out+=`<h3>${line.replace(/^###\s/,'')}</h3>`;continue}
+    if(/^##\s/.test(line)){out+=`<h2>${line.replace(/^##\s/,'')}</h2>`;continue}
+    if(/^#\s/.test(line)){out+=`<h1>${line.replace(/^#\s/,'')}</h1>`;continue}
+
+    // Empty line = paragraph break
+    if(line===''){out+='<br>';continue}
+
+    out+=`<p>${line}</p>`;
+  }
+  if(inUL)out+='</ul>';
+  if(inOL)out+='</ol>';
+  // Clean up excessive breaks
+  out=out.replace(/(<br>){3,}/g,'<br><br>');
+  return out;
+}
+
+function renderText(id,text,card){
+  const body=document.getElementById('body-'+id);
+  if(!body)return;
+  // Type-write effect then render markdown at end
+  let i=0;
+  const div=document.createElement('div');
+  div.className='qa-a-body';
+  const cur=document.createElement('span');
+  cur.className='cur';
+  div.appendChild(cur);
+  body.replaceWith(div);
+
+  const CHUNK=8;
+  const iv=setInterval(()=>{
+    if(i>=text.length){
+      clearInterval(iv);
+      // Final render as markdown
+      div.innerHTML=renderMarkdown(text);
+      scrollBottom();
+      return;
+    }
+    div.textContent=text.slice(0,i+=CHUNK);
+    div.appendChild(cur);
+    scrollBottom();
+  },6);
+}
+
+/* ── Gemini 2.5-flash with smart retry ── */
+async function doGemini(question,cid){
+  const prompt=`You are an expert interview coach. Answer the following interview question in a clear, professional, structured format.
 
 Question: "${question}"
 
-Your answer should include:
-1. **Direct Answer** — a confident, clear opening statement
-2. **Key Points** — 3-4 bullet points expanding on your answer  
-3. **STAR Example** — a concrete Situation/Task/Action/Result example (if applicable)
-4. **Closing Statement** — a strong memorable closing line
+Structure your answer with these exact sections:
+1. **Direct Answer** — A confident 2-3 sentence response
+2. **Key Points** — 3-4 bullet points with detailed explanations
+3. **STAR Example** — A concrete Situation/Task/Action/Result example (skip if not applicable)
+4. **Closing Statement** — A strong memorable final line
 
-Keep the tone professional yet natural.`;
+Use clear headings, bullet points, and bold text for emphasis. Be thorough but concise.`;
 
-  const MODEL = 'gemini-2.5-flash'; // ← current free tier model (replaces deprecated 1.5-flash & 2.0-flash)
-  const url   = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
+  const MODEL='gemini-2.5-flash';
+  const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
 
-  for (let attempt = 1; attempt <= 5; attempt++) {
-    if (attempt > 1) {
-      // show live countdown in the card
-      const waitsec = attempt * 6; // 12s, 18s, 24s, 30s
-      await liveCountdown(cardId, waitsec, attempt);
-      setStatus(`⏳ Retrying… (attempt ${attempt}/5)`);
-      const body = document.getElementById('qa-body-'+cardId);
-      if (body) body.innerHTML = `<div class="dot-loader"><span></span><span></span><span></span></div> Retrying with ${MODEL}…`;
+  for(let attempt=1;attempt<=5;attempt++){
+    if(attempt>1){
+      const wait=attempt*7;
+      await countdown(cid,wait,attempt);
+      setSt(`⏳ Retrying… (attempt ${attempt}/5)`);
+      const b=document.getElementById('body-'+cid);
+      if(b)b.innerHTML='<div class="dots"><span></span><span></span><span></span></div> Retrying…';
     }
 
     let res;
-    try {
-      res = await fetch(url, {
+    try{
+      res=await fetch(URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
+        body:JSON.stringify({
           contents:[{parts:[{text:prompt}]}],
-          generationConfig:{ temperature:0.7, maxOutputTokens:900 }
+          generationConfig:{temperature:.7,maxOutputTokens:1024}
         })
       });
-    } catch(netErr) {
-      throw new Error('Network error — check your internet connection.');
-    }
+    }catch{throw new Error('Network error — check your internet connection.')}
 
-    if (res.status === 429) {
-      // Try to read suggested retry-after from body
-      const errBody = await res.json().catch(()=>({}));
-      const msg = errBody?.error?.message || '';
-      const match = msg.match(/retry.*?([\d.]+)\s*s/i);
-      if (match && attempt < 5) {
-        const sugWait = Math.ceil(parseFloat(match[1])) + 3;
-        await liveCountdown(cardId, sugWait, attempt);
-        continue;
-      }
-      if (attempt === 5) throw new Error('Free tier quota exhausted. Please wait ~1 minute then try again, or enable billing at aistudio.google.com');
-      continue; // retry
+    if(res.status===429){
+      const errBody=await res.json().catch(()=>({}));
+      const msg=errBody?.error?.message||'';
+      const m=msg.match(/retry.*?([\d.]+)\s*s/i);
+      if(m&&attempt<5){const w=Math.ceil(parseFloat(m[1]))+3;await countdown(cid,w,attempt);continue}
+      if(attempt===5)throw new Error('Free tier quota exhausted. Please wait ~1 minute then try again.');
+      continue;
     }
-
-    if (!res.ok) {
-      const e = await res.json().catch(()=>({}));
-      const msg = e?.error?.message || `HTTP ${res.status}`;
-      // Don't retry non-429 errors
-      throw new Error(msg);
+    if(!res.ok){
+      const e=await res.json().catch(()=>({}));
+      throw new Error(e?.error?.message||`API error ${res.status}`);
     }
-
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received from Gemini.';
+    const data=await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
   }
-  throw new Error('Failed after 5 attempts. Please wait a minute and try again.');
+  throw new Error('Failed after 5 attempts — please wait 1 minute and try again.');
 }
 
-function liveCountdown(cardId, secs, attempt) {
-  return new Promise(resolve => {
-    const body = document.getElementById('qa-body-'+cardId);
-    if (!body) { setTimeout(resolve, secs*1000); return; }
-
-    let rem = secs;
-    body.innerHTML = `
-      <div style="width:100%">
-        <div class="retry-row">
-          ⏳ Rate limited — retrying in <strong id="cd-${cardId}">${rem}s</strong>&nbsp;(attempt ${attempt}/5)
-          <div class="retry-bar"><div class="retry-fill" id="cf-${cardId}" style="width:100%"></div></div>
+function countdown(cid,secs,attempt){
+  return new Promise(resolve=>{
+    const body=document.getElementById('body-'+cid);
+    if(!body){setTimeout(resolve,secs*1000);return}
+    let rem=secs;
+    body.innerHTML=`
+      <div class="retry-wrap">
+        <div class="retry-msg">
+          ⏳ Rate limited — retrying in <strong id="cd-${cid}">&nbsp;${rem}s&nbsp;</strong> (attempt ${attempt}/5)
+          <div class="r-bar"><div class="r-fill" id="rf-${cid}" style="width:100%"></div></div>
         </div>
       </div>`;
-
-    const t = setInterval(()=>{
+    const t=setInterval(()=>{
       rem--;
-      const cd = document.getElementById(`cd-${cardId}`);
-      const cf = document.getElementById(`cf-${cardId}`);
-      if (cd) cd.textContent = rem+'s';
-      if (cf) cf.style.width = ((rem/secs)*100)+'%';
-      if (rem <= 0) { clearInterval(t); resolve(); }
-    }, 1000);
+      const cd=document.getElementById(`cd-${cid}`);
+      const rf=document.getElementById(`rf-${cid}`);
+      if(cd)cd.textContent=` ${rem}s `;
+      if(rf)rf.style.width=((rem/secs)*100)+'%';
+      if(rem<=0){clearInterval(t);resolve()}
+    },1000);
   });
 }
 
 /* ── Claude streaming ── */
-async function doClaude(question, id) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+async function doClaude(question,id){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{
       'Content-Type':'application/json',
-      'x-api-key': keys.claude,
+      'x-api-key':keys.claude,
       'anthropic-version':'2023-06-01',
       'anthropic-dangerously-allow-browser':'true'
     },
-    body: JSON.stringify({
-      model:'claude-3-5-sonnet-20241022', max_tokens:1024, stream:true,
-      system:'You are an expert interview coach. Give structured answers using STAR method where applicable.',
-      messages:[{role:'user', content:question}]
+    body:JSON.stringify({
+      model:'claude-3-5-sonnet-20241022',max_tokens:1024,stream:true,
+      system:'You are an expert interview coach. Answer questions with clear structure, bold headings, and bullet points.',
+      messages:[{role:'user',content:question}]
     })
   });
-  if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
+  if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
 
-  document.getElementById('qa-body-'+id).innerHTML = '';
-  const txt = document.createElement('div');
-  txt.className = 'qa-a-body';
-  const cur = document.createElement('span');
-  cur.className = 'cursor';
-  txt.appendChild(cur);
-  document.getElementById('qa-body-'+id).appendChild(txt);
+  const body=document.getElementById('body-'+id);
+  const div=document.createElement('div');div.className='qa-a-body';
+  const cur=document.createElement('span');cur.className='cur';
+  div.appendChild(cur);body.replaceWith(div);
 
-  const reader = res.body.getReader(), dec = new TextDecoder();
-  let full = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    for (const line of dec.decode(value).split('\n')) {
-      if (line.startsWith('data: ')) {
-        try {
-          const p = JSON.parse(line.slice(6));
-          if (p.type==='content_block_delta' && p.delta?.text) {
-            full += p.delta.text;
-            txt.textContent = full;
-            txt.appendChild(cur);
+  const reader=res.body.getReader(),dec=new TextDecoder();
+  let full='';
+  while(true){
+    const{done,value}=await reader.read();if(done)break;
+    for(const line of dec.decode(value).split('\n')){
+      if(line.startsWith('data: ')){
+        try{
+          const p=JSON.parse(line.slice(6));
+          if(p.type==='content_block_delta'&&p.delta?.text){
+            full+=p.delta.text;
+            div.textContent=full;div.appendChild(cur);scrollBottom();
           }
-        } catch {}
+        }catch{}
       }
     }
   }
   cur.remove();
+  div.innerHTML=renderMarkdown(full);
+  scrollBottom();
 }
 
-/* ── OpenAI ── */
-async function doOpenAI(question) {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+async function doOpenAI(question){
+  const res=await fetch('https://api.openai.com/v1/chat/completions',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${keys.openai}`},
-    body: JSON.stringify({
-      model:'gpt-4o', max_tokens:1024,
+    body:JSON.stringify({
+      model:'gpt-4o',max_tokens:1024,
       messages:[
-        {role:'system', content:'You are an expert interview coach. Give structured answers using STAR method.'},
-        {role:'user', content:question}
+        {role:'system',content:'You are an expert interview coach. Use structured format with bold headings and bullet points.'},
+        {role:'user',content:question}
       ]
     })
   });
-  if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
-  return (await res.json()).choices[0].message.content;
+  if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
+  return(await res.json()).choices[0].message.content;
 }
 
-/* ── typewriter for non-streaming ── */
-function showText(id, text, card) {
-  const body = document.getElementById('qa-body-'+id);
-  if (!body) return;
-  body.innerHTML = '';
-  const el = document.createElement('div');
-  el.className = 'qa-a-body';
-  body.appendChild(el);
-  const cur = document.createElement('span');
-  cur.className = 'cursor';
-  el.appendChild(cur);
-  let i = 0;
-  const iv = setInterval(()=>{
-    if (i >= text.length) { clearInterval(iv); cur.remove(); return; }
-    el.textContent = text.slice(0, i+=6);
-    el.appendChild(cur);
-    card.scrollIntoView({ behavior:'smooth', block:'end' });
-  }, 7);
+/* ── utils ── */
+/* ── busy flash: tells user to wait ── */
+function showBusyFlash(){
+  const el=document.getElementById('busy-flash');
+  if(el){el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);return}
+  const f=document.createElement('div');
+  f.id='busy-flash';
+  f.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#fef3c7;border:1.5px solid #fcd34d;color:#92400e;font-size:13px;font-weight:600;padding:10px 20px;border-radius:30px;box-shadow:0 4px 14px rgba(0,0,0,.12);z-index:500;transition:opacity .4s;pointer-events:none;';
+  f.textContent='⏳ Please wait — answer is generating…';
+  document.body.appendChild(f);
+  setTimeout(()=>f.style.opacity='0',2000);
+  setTimeout(()=>f.remove(),2500);
 }
 
-/* ── utility ── */
-function setStatus(msg) { document.getElementById('status-txt').textContent = msg; }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function clearFeed() {
-  qid = 0;
-  document.getElementById('feed').innerHTML = `
-    <div class="empty" id="empty-state">
-      <div class="empty-icon">🎤</div>
-      <div class="empty-title">Ready for Your Interview</div>
-      <div class="empty-sub">Right-click anywhere — your mic starts instantly.</div>
-      <div class="tips">
-        <div class="tip"><div class="tip-i">🖱</div><div class="tip-t">Right-click → instant mic</div><div class="tip-d">Recording starts immediately</div></div>
-        <div class="tip"><div class="tip-i">🎤</div><div class="tip-t">Speak naturally</div><div class="tip-d">Any interview question</div></div>
-        <div class="tip"><div class="tip-i">⚡</div><div class="tip-t">Text-only answer</div><div class="tip-d">Fast, clean, no audio</div></div>
-        <div class="tip"><div class="tip-i">🔁</div><div class="tip-t">Auto-retry</div><div class="tip-d">Rate limits handled automatically</div></div>
+function syncHint(busy){
+  const h=document.querySelector('.tag-hint');
+  if(!h)return;
+  if(busy){h.style.background='#fef3c7';h.style.borderColor='#fcd34d';h.style.color='#92400e';h.textContent='⏳ Answering…';}
+  else{h.style.background='';h.style.borderColor='';h.style.color='';h.textContent='🖱 Right-click to speak';}
+}
+
+function scrollBottom(){
+  const f=document.getElementById('feed');
+  f.scrollTop=f.scrollHeight;
+}
+function setSt(m){document.getElementById('stxt').textContent=m}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function clearFeed(){
+  qnum=0;
+  document.getElementById('feed').innerHTML=`
+    <div class="empty" id="empty">
+      <div class="e-icon">🎤</div>
+      <div class="e-title">Ready for Your Interview</div>
+      <div class="e-sub">Right-click anywhere — your microphone starts instantly.</div>
+      <div class="e-tips">
+        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click = instant mic</div><div class="et-d">No menu — recording starts immediately</div></div>
+        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Speak naturally</div><div class="et-d">Any interview question</div></div>
+        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read</div></div>
+        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically</div></div>
       </div>
     </div>`;
-  setStatus('Ready — right-click anywhere to start');
+  setSt('Ready — right-click anywhere to start');
 }
 </script>
 </body>
