@@ -166,7 +166,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* Feed area */
 .feed{
   flex:1;overflow-y:auto;padding:24px 20px 32px;
-  display:flex;flex-direction:column;gap:20px;
+  display:flex;flex-direction:column;
+  align-items:center; /* Centers content horizontally */
   scroll-behavior:smooth;
 }
 .feed::-webkit-scrollbar{width:5px}
@@ -199,8 +200,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* QA Card */
 .qa{
   background:#fff;border:1.5px solid #e2e8f0;border-radius:var(--r-lg);
-  overflow:hidden;box-shadow:var(--shadow);
+  overflow:hidden;box-shadow:var(--shadow-lg); /* Increased shadow for focus */
   animation:pop .25s ease;
+  width: 100%;
+  max-width: 900px; /* Constrain width for readability */
+  margin: auto; /* Centers the card vertically inside the flex container */
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -359,7 +363,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 </head>
 <body>
 
-<!-- ══════════ SETUP ══════════ -->
 <div id="setup">
   <div class="card">
     <div class="brand">
@@ -416,7 +419,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 </div>
 
-<!-- ══════════ MAIN APP ══════════ -->
 <div id="app">
   <div class="bar">
     <div class="bar-l">
@@ -457,7 +459,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 </div>
 
-<!-- Recording overlay -->
 <div id="rec">
   <div class="rec-ring"><div class="rec-core">🎤</div></div>
   <div class="rec-title">Listening…</div>
@@ -586,8 +587,13 @@ function stopRec(){
 async function answerQ(question){
   qnum++;const id=qnum;
   isBusy=true;
+  
   const empty=document.getElementById('empty');
   if(empty)empty.style.display='none';
+
+  // ---> NEW: Clear previous answer cards so only the latest is visible <---
+  document.querySelectorAll('.qa').forEach(el => el.remove());
+
   setSt('⏳ Generating answer…');
   syncHint(true);
 
@@ -623,7 +629,7 @@ async function answerQ(question){
     if(ai==='claude') await doClaude(question,id);
     else if(ai==='openai'){text=await doOpenAI(question);renderText(id,text,card);}
     else{text=await doGemini(question,id);renderText(id,text,card);}
-    setSt(`✓ Question ${id} answered — right-click to ask more`);
+    setSt(`✓ Question answered — right-click to ask another`);
     isBusy=false; syncHint(false);
   }catch(e){
     document.getElementById('body-'+id).outerHTML=`
