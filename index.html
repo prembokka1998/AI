@@ -145,23 +145,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 }
 .cfg-btn:hover{border-color:#a5b4fc;color:#4f46e5}
 
-/* Feed area */
+/* Feed area - CHANGED TO BLOCK TO FIX SCROLLING BUGS */
 .feed{
-  flex:1;overflow-y:auto;padding:24px 20px 32px;
-  display:flex;flex-direction:column;
-  align-items:center; 
+  flex:1;
+  overflow-y:auto;
+  padding:30px 20px;
+  display:block; /* Block layout completely fixes the cut-off scroll bug */
   scroll-behavior:smooth;
 }
-.feed::-webkit-scrollbar{width:5px}
+.feed::-webkit-scrollbar{width:6px}
 .feed::-webkit-scrollbar-track{background:transparent}
-.feed::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:5px}
+.feed::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
 
-/* Empty */
+/* Empty State */
 .empty{
-  margin: auto; /* Centers the empty state specifically */
+  margin-top: 8vh; /* Centers empty state manually without flex issues */
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  text-align:center;gap:16px;padding:40px;
+  text-align:center;gap:16px;padding:20px;
 }
 .e-icon{
   width:72px;height:72px;border-radius:20px;
@@ -187,9 +188,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   animation:pop .25s ease;
   width: 100%;
   max-width: 900px; 
-  /* FIX: margin: auto causes flexbox scroll clipping. Use specific margins */
-  margin: 0 auto 40px auto; 
-  flex-shrink: 0; /* FIX: ensures the card never gets squished, allows full scroll */
+  margin: 0 auto 40px auto; /* Centers card nicely in Block layout */
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -209,7 +208,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-q-text{font-size:14px;font-weight:600;color:#1e293b;line-height:1.5;padding-top:3px}
 
 /* Answer row */
-.qa-a{padding:20px}
+.qa-a{padding:24px 28px}
 .qa-a-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .qa-a-badge{
   display:flex;align-items:center;gap:5px;border-radius:6px;
@@ -222,7 +221,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-time{font-size:11px;color:#94a3b8;margin-left:auto}
 
 /* Answer body */
-.qa-a-body { font-size: 14.5px; line-height: 1.7; color: #334155; }
+.qa-a-body { font-size: 14.5px; line-height: 1.75; color: #334155; padding-bottom: 10px;}
 .qa-a-body p { margin-bottom: 14px; }
 .qa-a-body p:last-child { margin-bottom: 0; }
 .qa-a-body strong { font-weight: 700; color: #0f172a; }
@@ -230,9 +229,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-body ul, .qa-a-body ol { padding-left: 24px; margin-bottom: 16px; }
 .qa-a-body li { margin-bottom: 6px; line-height: 1.6; }
 .qa-a-body li::marker { color: #64748b; font-weight: 600; }
-.qa-a-body h1, .qa-a-body h2, .qa-a-body h3 { font-weight: 700; color: #1e293b; margin: 24px 0 10px; line-height: 1.3; }
+.qa-a-body h1, .qa-a-body h2, .qa-a-body h3 { font-weight: 700; color: #1e293b; margin: 26px 0 12px; line-height: 1.3; }
 .qa-a-body h1 { font-size: 20px; }
-.qa-a-body h2 { font-size: 17px; color: #4f46e5; border-bottom: 1.5px solid #e0e7ff; padding-bottom: 6px; margin-top: 28px; }
+.qa-a-body h2 { font-size: 17px; color: #4f46e5; border-bottom: 1.5px solid #e0e7ff; padding-bottom: 6px; }
+.qa-a-body h2:first-child { margin-top: 0; }
 .qa-a-body h3 { font-size: 15px; color: #374151; }
 .qa-a-body code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; padding: 2px 6px; color: #be185d; }
 .qa-a-body pre { background: #1e293b; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
