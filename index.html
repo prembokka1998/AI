@@ -187,7 +187,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   animation:pop .25s ease;
   width: 100%;
   max-width: 900px; 
-  margin: auto; 
+  /* FIX: Removed margin: auto which caused flexbox to clip long scrollable content */
+  margin-top: 20px;
+  margin-bottom: 40px;
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -259,10 +261,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 /* Error in card */
 .qa-err{
-  display:flex;align-items:flex-start;gap:10px;
+  display:flex;align-items:center;gap:10px;
   background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;
   padding:12px 14px;font-size:13px;color:#dc2626;line-height:1.5;
 }
+.retry-btn {
+  margin-left: auto; background: #fff; border: 1px solid #fca5a5; color: #dc2626;
+  padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;
+  transition: background 0.2s; white-space: nowrap;
+}
+.retry-btn:hover { background: #fee2e2; }
 
 /* Bottom bar */
 .bot{
@@ -607,6 +615,10 @@ function forceProcessTranscript() {
     q = q.replace(/\bCPA\b/gi, 'CPI');
     q = q.replace(/\bcontent in rich\b/gi, 'content enrich');
     q = q.replace(/\bcontent modified\b/gi, 'content modifier');
+    
+    // --> NEW AUTO-CORRECTS based on screenshot
+    q = q.replace(/\bHenry\b/gi, 'Enrich');
+    q = q.replace(/\bhenry\b/gi, 'enrich');
 
     if (q && q !== 'Waiting for speech…' && q !== 'Listening…') {
         answerQ(q);
@@ -682,8 +694,14 @@ async function answerQ(question){
       console.log('Request cancelled by user');
       return; 
     }
+    
+    // --> NEW: Added a manual Retry button to the error state
     document.getElementById('body-'+id).outerHTML=`
-      <div class="qa-err">⚠️ <span>${esc(e.message||'API error — check your key')}</span></div>`;
+      <div class="qa-err">
+        ⚠️ <span>${esc(e.message||'API error — check your key')}</span>
+        <button class="retry-btn" data-q="${esc(question).replace(/"/g, '&quot;')}" onclick="answerQ(this.getAttribute('data-q'))">↻ Retry</button>
+      </div>`;
+      
     setSt('⚠ Error — see the answer card');
     isBusy=false; syncHint(false);
   }
