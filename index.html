@@ -8,565 +8,645 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #0a0a0f; --surface: #111118; --surface2: #1a1a25;
+    --bg: #0a0a0f; --surface: #111118; --surface2: #1a1a25; --surface3: #2a2a3a;
     --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-    --text: #f0f0ff; --text2: #9090b0;
+    --text: #f0f0ff; --text2: #9090b0; --text3: #606080;
     --accent: #7c6dfa; --accent2: #5b4de0;
-    --green: #22d3a0; --red: #ff4f6d;
+    --green: #22d3a0; --red: #ff4f6d; --amber: #f59e0b;
     --claude: #d97706; --openai: #10b981; --gemini: #4285f4;
     --font: 'Space Grotesk', sans-serif; --mono: 'JetBrains Mono', monospace;
     --radius: 12px; --radius-sm: 8px; --radius-lg: 20px;
   }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; user-select: none; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; user-select: none; }
 
-  /* SETUP */
+  /* ══ SETUP SCREEN ══ */
   #setup-screen {
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at 30% 40%, rgba(124,109,250,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(34,211,160,0.06) 0%, transparent 50%), var(--bg);
-    z-index: 100;
+    background: radial-gradient(ellipse at 30% 40%, rgba(124,109,250,0.14) 0%, transparent 60%),
+                radial-gradient(ellipse at 75% 80%, rgba(34,211,160,0.07) 0%, transparent 50%), var(--bg);
+    z-index: 100; overflow-y: auto; padding: 20px;
   }
-  .setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 44px 40px; width: 480px; max-width: 95vw; box-shadow: 0 0 80px rgba(124,109,250,0.1), 0 32px 64px rgba(0,0,0,0.6); }
-  .setup-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .setup-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--green)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .setup-logo h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .setup-tagline { color: var(--text2); font-size: 13px; margin-bottom: 28px; padding-left: 50px; }
-  .setup-section-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; }
-  .ai-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-  .ai-card { background: var(--surface2); border: 2px solid var(--border); border-radius: var(--radius); padding: 14px 12px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; overflow: hidden; }
-  .ai-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; border-radius: inherit; }
-  .ai-card[data-ai="claude"]::before { background: rgba(217,119,6,0.08); }
-  .ai-card[data-ai="openai"]::before { background: rgba(16,185,129,0.08); }
-  .ai-card[data-ai="gemini"]::before { background: rgba(66,133,244,0.08); }
-  .ai-card:hover::before, .ai-card.selected::before { opacity: 1; }
+  .setup-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+    padding: 40px 36px; width: 500px; max-width: 100%;
+    box-shadow: 0 0 100px rgba(124,109,250,0.1), 0 40px 80px rgba(0,0,0,0.7);
+  }
+  .setup-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .setup-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--green)); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .setup-logo h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .setup-tagline { color: var(--text2); font-size: 13px; margin-bottom: 32px; padding-left: 54px; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+
+  /* AI Cards */
+  .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+  .ai-card { background: var(--surface2); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px 10px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; overflow: hidden; }
+  .ai-card::after { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; }
+  .ai-card[data-ai="claude"]::after  { background: rgba(217,119,6,0.07); }
+  .ai-card[data-ai="openai"]::after  { background: rgba(16,185,129,0.07); }
+  .ai-card[data-ai="gemini"]::after  { background: rgba(66,133,244,0.07); }
+  .ai-card:hover::after, .ai-card.selected::after { opacity: 1; }
   .ai-card.selected[data-ai="claude"] { border-color: var(--claude); }
   .ai-card.selected[data-ai="openai"] { border-color: var(--openai); }
   .ai-card.selected[data-ai="gemini"] { border-color: var(--gemini); }
-  .ai-dot { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
-  .ai-dot.claude { background: rgba(217,119,6,0.2); color: var(--claude); }
-  .ai-dot.openai { background: rgba(16,185,129,0.2); color: var(--openai); }
-  .ai-dot.gemini { background: rgba(66,133,244,0.2); color: var(--gemini); }
-  .ai-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-  .ai-desc { font-size: 10px; color: var(--text2); }
-  .api-key-section { margin-bottom: 20px; }
-  .api-key-input-wrap { position: relative; display: flex; align-items: center; }
-  .api-key-input-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--mono); font-size: 13px; padding: 11px 44px 11px 14px; outline: none; transition: border-color 0.2s; }
-  .api-key-input-wrap input::placeholder { color: var(--text2); }
-  .api-key-input-wrap input:focus { border-color: var(--accent); }
-  .api-key-toggle { position: absolute; right: 12px; background: none; border: none; cursor: pointer; color: var(--text2); font-size: 16px; }
+  .ai-avatar { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+  .ai-avatar.claude { background: rgba(217,119,6,0.18); color: var(--claude); }
+  .ai-avatar.openai { background: rgba(16,185,129,0.18); color: var(--openai); }
+  .ai-avatar.gemini { background: rgba(66,133,244,0.18); color: var(--gemini); }
+  .ai-name  { font-size: 13px; font-weight: 600; }
+  .ai-maker { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
-  /* MIC PERMISSION BOX */
-  .mic-permission-box {
-    background: rgba(34,211,160,0.07);
-    border: 1px solid rgba(34,211,160,0.25);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
-    margin-bottom: 20px;
-    display: flex; align-items: flex-start; gap: 12px;
-  }
-  .mic-permission-box .mic-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-  .mic-permission-box .mic-info { flex: 1; }
-  .mic-permission-box .mic-title { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 4px; }
-  .mic-permission-box .mic-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .mic-grant-btn {
-    background: rgba(34,211,160,0.15); border: 1px solid rgba(34,211,160,0.35);
-    border-radius: 6px; color: var(--green); font-family: var(--font);
-    font-size: 12px; font-weight: 600; padding: 6px 14px; cursor: pointer;
-    transition: all 0.2s; margin-top: 8px; display: inline-block;
-    white-space: nowrap;
-  }
-  .mic-grant-btn:hover { background: rgba(34,211,160,0.25); }
-  .mic-status { font-size: 11px; margin-top: 6px; font-weight: 500; }
-  .mic-status.granted { color: var(--green); }
-  .mic-status.denied { color: var(--red); }
+  /* API Key */
+  .key-wrap { position: relative; margin-bottom: 6px; }
+  .key-wrap input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 11px 42px 11px 14px; outline: none; transition: border-color 0.2s; }
+  .key-wrap input:focus { border-color: var(--accent); }
+  .key-wrap input::placeholder { color: var(--text3); }
+  .key-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text2); cursor: pointer; font-size: 15px; padding: 0; }
+  .key-hint { font-size: 11px; color: var(--text3); margin-bottom: 24px; line-height: 1.5; }
+  .key-hint a { color: var(--accent); text-decoration: none; }
+  .err { color: var(--red); font-size: 12px; margin-top: 4px; display: none; }
 
-  .start-btn { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: var(--radius); color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600; padding: 14px; cursor: pointer; transition: all 0.2s; }
-  .start-btn:hover { opacity: 0.9; }
-  .start-btn:active { transform: scale(0.99); }
-  .error-msg { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
+  /* Mic box */
+  .mic-box { display: flex; gap: 12px; align-items: flex-start; background: rgba(34,211,160,0.06); border: 1px solid rgba(34,211,160,0.2); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px; }
+  .mic-box-icon { font-size: 24px; flex-shrink: 0; }
+  .mic-box-body { flex: 1; }
+  .mic-box-title { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 3px; }
+  .mic-box-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .mic-btn { margin-top: 8px; background: rgba(34,211,160,0.12); border: 1px solid rgba(34,211,160,0.3); border-radius: 6px; color: var(--green); font-family: var(--font); font-size: 12px; font-weight: 600; padding: 6px 14px; cursor: pointer; display: inline-block; transition: background 0.2s; }
+  .mic-btn:hover { background: rgba(34,211,160,0.22); }
+  .mic-btn:disabled { opacity: 0.5; cursor: default; }
+  .mic-status { font-size: 11px; margin-top: 5px; }
+  .mic-status.ok  { color: var(--green); }
+  .mic-status.err { color: var(--red); }
 
-  /* MAIN APP */
-  #main-app { display: none; height: 100vh; flex-direction: column; background: radial-gradient(ellipse at 20% 20%, rgba(124,109,250,0.05) 0%, transparent 50%), var(--bg); }
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .header-logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--green)); display: flex; align-items: center; justify-content: center; font-size: 15px; }
-  .header-title { font-size: 15px; font-weight: 600; }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .ai-badge { display: flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; }
-  .ai-badge-dot { width: 7px; height: 7px; border-radius: 50%; }
-  .ai-badge-dot.claude { background: var(--claude); }
-  .ai-badge-dot.openai { background: var(--openai); }
-  .ai-badge-dot.gemini { background: var(--gemini); }
-  .mic-indicator { display: flex; align-items: center; gap: 5px; background: rgba(34,211,160,0.1); border: 1px solid rgba(34,211,160,0.2); border-radius: 20px; padding: 5px 10px; font-size: 11px; color: var(--green); }
-  .mic-indicator-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: status-pulse 2s ease-in-out infinite; }
-  .hint-pill { display: flex; align-items: center; gap: 6px; background: rgba(124,109,250,0.1); border: 1px solid rgba(124,109,250,0.25); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #a090ff; animation: pulse-hint 3s ease-in-out infinite; }
-  @keyframes pulse-hint { 0%,100%{opacity:0.7} 50%{opacity:1} }
-  .settings-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text2); width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
-  .settings-btn:hover { border-color: var(--border2); color: var(--text); }
-  .main-content { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
-  .main-content::-webkit-scrollbar { width: 4px; }
-  .main-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
-  .welcome-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; padding: 40px; min-height: 300px; }
-  .welcome-icon { width: 72px; height: 72px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
-  .welcome-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .welcome-sub { font-size: 14px; color: var(--text2); line-height: 1.6; max-width: 360px; }
-  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; }
-  .tip-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: left; }
-  .tip-icon { font-size: 18px; margin-bottom: 6px; display: block; }
-  .tip-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
-  .tip-desc { font-size: 11px; color: var(--text2); line-height: 1.4; }
-  .qa-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: slide-in 0.3s ease; }
-  @keyframes slide-in { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  .qa-question { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); }
-  .qa-q-icon { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; background: rgba(124,109,250,0.15); border: 1px solid rgba(124,109,250,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--accent); font-weight: 700; }
-  .qa-q-text { font-size: 14px; font-weight: 500; line-height: 1.5; }
-  .qa-answer { padding: 16px 20px; }
-  .qa-a-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .qa-a-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .qa-a-model { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-  .qa-a-time { font-size: 11px; color: var(--text2); margin-left: auto; }
-  .qa-a-text { font-size: 14px; line-height: 1.7; color: var(--text2); white-space: pre-wrap; word-break: break-word; }
-  .cursor-blink { display: inline-block; width: 2px; height: 14px; background: var(--accent); vertical-align: middle; margin-left: 2px; animation: blink 0.7s step-end infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .qa-loading { display: flex; align-items: center; gap: 8px; padding: 4px 0; color: var(--text2); font-size: 13px; }
-  .dots-loader { display: flex; gap: 4px; }
-  .dots-loader span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: dot-bounce 1.2s ease-in-out infinite; }
-  .dots-loader span:nth-child(2) { animation-delay: 0.2s; }
-  .dots-loader span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+  /* Rate-limit notice */
+  .rate-notice { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 20px; font-size: 12px; color: #d4a017; line-height: 1.6; }
+  .rate-notice strong { color: var(--amber); }
 
-  /* RECORDING OVERLAY */
-  #recording-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 20px; }
-  #recording-overlay.active { display: flex; }
-  .rec-ring { width: 120px; height: 120px; position: relative; display: flex; align-items: center; justify-content: center; }
-  .rec-ring::before, .rec-ring::after { content: ''; position: absolute; border-radius: 50%; border: 2px solid var(--red); animation: rec-pulse 1.5s ease-out infinite; }
-  .rec-ring::after { animation-delay: 0.5s; }
-  @keyframes rec-pulse { 0%{width:80px;height:80px;opacity:0.8} 100%{width:130px;height:130px;opacity:0} }
-  .rec-btn-inner { width: 72px; height: 72px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 0 30px rgba(255,79,109,0.4); animation: rec-scale 1s ease-in-out infinite alternate; }
-  @keyframes rec-scale { from{transform:scale(1)} to{transform:scale(1.05)} }
-  .rec-label { color: #fff; font-size: 15px; font-weight: 500; }
-  .rec-sub { color: rgba(255,255,255,0.5); font-size: 12px; }
-  .rec-transcript { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; max-width: 460px; width: 90vw; font-size: 14px; color: var(--text2); min-height: 48px; line-height: 1.5; font-family: var(--mono); text-align: center; }
-  .rec-cancel { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text2); font-family: var(--font); font-size: 13px; padding: 8px 20px; cursor: pointer; }
+  .start-btn { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: var(--radius); color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600; padding: 14px; cursor: pointer; transition: opacity 0.2s; }
+  .start-btn:hover { opacity: 0.88; }
+
+  /* ══ MAIN APP ══ */
+  #main-app { display: none; height: 100vh; flex-direction: column; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .topbar-left  { display: flex; align-items: center; gap: 10px; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .app-logo { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--green)); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .app-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
+  .pill { display: flex; align-items: center; gap: 5px; border-radius: 20px; padding: 4px 11px; font-size: 11px; font-weight: 500; border: 1px solid; }
+  .pill-mic  { background: rgba(34,211,160,0.08); border-color: rgba(34,211,160,0.2); color: var(--green); }
+  .pill-hint { background: rgba(124,109,250,0.08); border-color: rgba(124,109,250,0.2); color: #a090ff; animation: hint-pulse 3s ease-in-out infinite; }
+  @keyframes hint-pulse { 0%,100%{opacity:.65} 50%{opacity:1} }
+  .pill-ai   { background: var(--surface2); border-color: var(--border); color: var(--text); }
+  .pill-dot  { width: 6px; height: 6px; border-radius: 50%; }
+  .pill-dot.claude { background: var(--claude); }
+  .pill-dot.openai { background: var(--openai); }
+  .pill-dot.gemini { background: var(--gemini); }
+  .icon-btn  { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: var(--text2); transition: all 0.15s; }
+  .icon-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  /* Feed */
+  .feed { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .feed::-webkit-scrollbar { width: 3px; }
+  .feed::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* Empty state */
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; padding: 40px; }
+  .empty-icon { width: 68px; height: 68px; background: var(--surface2); border: 1px solid var(--border); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+  .empty-title { font-size: 20px; font-weight: 700; background: linear-gradient(135deg,#fff,var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .empty-sub { font-size: 13px; color: var(--text2); max-width: 340px; line-height: 1.6; }
+  .tips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 480px; width: 100%; }
+  .tip { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: left; }
+  .tip-i { font-size: 16px; margin-bottom: 5px; }
+  .tip-t { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+  .tip-d { font-size: 10px; color: var(--text2); line-height: 1.4; }
+
+  /* QA card */
+  .qa { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; animation: pop .28s ease; }
+  @keyframes pop { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .qa-q { display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .qa-q-badge { width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; background: rgba(124,109,250,0.15); border: 1px solid rgba(124,109,250,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--accent); }
+  .qa-q-text  { font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--text); }
+  .qa-a { padding: 14px 18px; }
+  .qa-a-meta  { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+  .qa-a-dot   { width: 6px; height: 6px; border-radius: 50%; }
+  .qa-a-name  { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .qa-a-time  { font-size: 10px; color: var(--text2); margin-left: auto; }
+  .qa-a-body  { font-size: 13px; line-height: 1.75; color: var(--text2); white-space: pre-wrap; word-break: break-word; }
+
+  /* Retry countdown inside qa card */
+  .retry-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--amber); margin-bottom: 6px; }
+  .retry-bar { flex: 1; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .retry-fill { height: 100%; background: var(--amber); transition: width 1s linear; }
+
+  .dot-loader { display: flex; gap: 4px; }
+  .dot-loader span { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: dl 1.2s ease-in-out infinite; }
+  .dot-loader span:nth-child(2){ animation-delay:.2s }
+  .dot-loader span:nth-child(3){ animation-delay:.4s }
+  @keyframes dl { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+
+  .cursor { display: inline-block; width: 2px; height: 13px; background: var(--accent); vertical-align: middle; margin-left: 1px; animation: cur .7s step-end infinite; }
+  @keyframes cur { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Status bar */
+  .statusbar { padding: 7px 18px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .status-left { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+  .status-led  { width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 5px var(--green); animation: hint-pulse 2s ease-in-out infinite; }
+  .status-clear { background: none; border: none; font-family: var(--font); font-size: 11px; color: var(--text3); cursor: pointer; padding: 2px 8px; border-radius: 4px; }
+  .status-clear:hover { background: var(--surface2); color: var(--text2); }
+
+  /* Recording overlay */
+  #rec-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.88); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; z-index: 200; }
+  #rec-overlay.on { display: flex; }
+  .rec-ring { width: 110px; height: 110px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .rec-ring::before,.rec-ring::after { content:''; position:absolute; border-radius:50%; border: 2px solid var(--red); animation: rp 1.6s ease-out infinite; }
+  .rec-ring::after { animation-delay:.55s }
+  @keyframes rp { 0%{width:72px;height:72px;opacity:.9} 100%{width:120px;height:120px;opacity:0} }
+  .rec-core { width: 66px; height: 66px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 28px rgba(255,79,109,.45); animation: rs 1s ease-in-out infinite alternate; }
+  @keyframes rs { from{transform:scale(1)} to{transform:scale(1.06)} }
+  .rec-label { color:#fff; font-size:15px; font-weight:600; }
+  .rec-sub   { color:rgba(255,255,255,.4); font-size:12px; }
+  .rec-box   { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; max-width: 440px; width: 90vw; font-size: 13px; color: var(--text2); min-height: 44px; line-height: 1.5; font-family: var(--mono); text-align: center; }
+  .rec-cancel{ background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text2); font-family: var(--font); font-size: 12px; padding: 7px 18px; cursor: pointer; }
   .rec-cancel:hover { color: var(--text); }
-
-  /* CONTEXT MENU */
-  #ctx-menu { position: fixed; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 6px; min-width: 210px; box-shadow: 0 8px 32px rgba(0,0,0,0.7); z-index: 300; display: none; animation: menu-in 0.12s ease; }
-  @keyframes menu-in { from{opacity:0;transform:scale(0.96) translateY(-4px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  .ctx-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.15s; color: var(--text); }
-  .ctx-item:hover { background: var(--surface2); }
-  .ctx-item.primary { color: var(--accent); }
-  .ctx-item.primary:hover { background: rgba(124,109,250,0.1); }
-  .ctx-sep { height: 1px; background: var(--border); margin: 4px 0; }
-
-  /* STATUS BAR */
-  .status-bar { padding: 8px 20px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text2); flex-shrink: 0; }
-  .status-indicator { display: flex; align-items: center; gap: 6px; }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: status-pulse 2s ease-in-out infinite; }
-  @keyframes status-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-  .clear-btn { background: none; border: none; color: var(--text2); font-family: var(--font); font-size: 11px; cursor: pointer; padding: 2px 8px; border-radius: 4px; }
-  .clear-btn:hover { background: var(--surface2); color: var(--text); }
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
+<!-- ══ SETUP ══ -->
 <div id="setup-screen">
   <div class="setup-card">
     <div class="setup-logo">
       <div class="setup-logo-icon">🎯</div>
       <h1>InterviewAI</h1>
     </div>
-    <p class="setup-tagline">Right-click anywhere → voice input → instant AI answer</p>
+    <p class="setup-tagline">Right-click → speak → instant expert answer</p>
 
-    <div class="setup-section-label">Choose AI Model</div>
+    <div class="section-label">Select AI Model</div>
     <div class="ai-grid">
-      <div class="ai-card" data-ai="claude" onclick="selectAI('claude')">
-        <div class="ai-dot claude">C</div>
-        <div class="ai-name">Claude</div>
-        <div class="ai-desc">by Anthropic</div>
-      </div>
-      <div class="ai-card" data-ai="openai" onclick="selectAI('openai')">
-        <div class="ai-dot openai">G</div>
-        <div class="ai-name">ChatGPT</div>
-        <div class="ai-desc">by OpenAI</div>
-      </div>
-      <div class="ai-card selected" data-ai="gemini" onclick="selectAI('gemini')">
-        <div class="ai-dot gemini">G</div>
+      <div class="ai-card selected" data-ai="gemini" onclick="pickAI('gemini')">
+        <div class="ai-avatar gemini">G</div>
         <div class="ai-name">Gemini</div>
-        <div class="ai-desc">by Google</div>
+        <div class="ai-maker">Google</div>
+      </div>
+      <div class="ai-card" data-ai="claude" onclick="pickAI('claude')">
+        <div class="ai-avatar claude">C</div>
+        <div class="ai-name">Claude</div>
+        <div class="ai-maker">Anthropic</div>
+      </div>
+      <div class="ai-card" data-ai="openai" onclick="pickAI('openai')">
+        <div class="ai-avatar openai">G</div>
+        <div class="ai-name">ChatGPT</div>
+        <div class="ai-maker">OpenAI</div>
       </div>
     </div>
 
-    <div class="api-key-section">
-      <div class="setup-section-label">API Key</div>
-      <div class="api-key-input-wrap">
-        <input type="text" id="api-key-input" value="AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo" spellcheck="false" />
-        <button class="api-key-toggle" onclick="toggleKey()">👁</button>
-      </div>
-      <div class="error-msg" id="error-msg"></div>
+    <div class="section-label" id="key-label">Gemini API Key</div>
+    <div class="key-wrap">
+      <input type="password" id="key-input" placeholder="AIzaSy..." spellcheck="false">
+      <button class="key-eye" onclick="toggleEye()">👁</button>
+    </div>
+    <div class="err" id="key-err"></div>
+    <div class="key-hint" id="key-hint">
+      Free tier: <strong style="color:var(--amber)">use gemini-2.5-flash</strong> (already set). Get key →
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
     </div>
 
-    <!-- MIC PERMISSION — grant once here so it never asks again -->
-    <div class="mic-permission-box">
-      <div class="mic-icon">🎤</div>
-      <div class="mic-info">
-        <div class="mic-title">Grant Microphone — Once Only</div>
-        <div class="mic-desc">Click below to allow mic access now. Chrome will remember it and <strong>never ask again</strong> during voice questions.</div>
-        <button class="mic-grant-btn" id="mic-grant-btn" onclick="grantMicPermission()">Allow Microphone Access</button>
-        <div class="mic-status" id="mic-status"></div>
+    <div class="rate-notice" id="rate-notice">
+      ⚠️ <strong>Free tier limit:</strong> Gemini free tier allows ~15 requests/min.
+      The app uses <strong>gemini-2.5-flash</strong> (free tier compatible) and will
+      <strong>auto-retry</strong> with a countdown if rate-limited.
+      For unlimited use, enable billing at aistudio.google.com.
+    </div>
+
+    <div class="mic-box">
+      <div class="mic-box-icon">🎤</div>
+      <div class="mic-box-body">
+        <div class="mic-box-title">Grant Microphone — Once</div>
+        <div class="mic-box-desc">Click below now so Chrome never asks again during your interview.</div>
+        <button class="mic-btn" id="mic-btn" onclick="grantMic()">Allow Microphone</button>
+        <div class="mic-status" id="mic-st"></div>
       </div>
     </div>
 
-    <button class="start-btn" id="start-btn" onclick="startApp()">Start Interview Assistant →</button>
+    <button class="start-btn" onclick="launch()">Start Interview Assistant →</button>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ══ MAIN APP ══ -->
 <div id="main-app">
-  <div class="header">
-    <div class="header-left">
-      <div class="header-logo">🎯</div>
-      <span class="header-title">InterviewAI</span>
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="app-logo">🎯</div>
+      <span class="app-title">InterviewAI</span>
     </div>
-    <div class="header-right">
-      <div class="mic-indicator"><div class="mic-indicator-dot"></div> Mic ready</div>
-      <div class="hint-pill">🖱 Right-click to ask</div>
-      <div class="ai-badge">
-        <div class="ai-badge-dot gemini" id="badge-dot"></div>
-        <span id="badge-text">Gemini</span>
+    <div class="topbar-right">
+      <div class="pill pill-mic"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:hint-pulse 2s infinite"></span> Mic ready</div>
+      <div class="pill pill-hint">🖱 Right-click to speak</div>
+      <div class="pill pill-ai">
+        <span class="pill-dot gemini" id="badge-dot"></span>
+        <span id="badge-txt">Gemini</span>
       </div>
-      <button class="settings-btn" onclick="goToSettings()">⚙️</button>
+      <button class="icon-btn" onclick="goSettings()" title="Settings">⚙️</button>
     </div>
   </div>
 
-  <div class="main-content" id="qa-container">
-    <div class="welcome-state" id="welcome-state">
-      <div class="welcome-icon">🎤</div>
-      <div class="welcome-title">Ready to Ace Your Interview</div>
-      <div class="welcome-sub">Right-click anywhere on this page to ask interview questions via voice. Instant AI answers appear here.</div>
-      <div class="tips-grid">
-        <div class="tip-card"><span class="tip-icon">🖱</span><div class="tip-title">Right-click</div><div class="tip-desc">Opens menu to start voice input</div></div>
-        <div class="tip-card"><span class="tip-icon">🎤</span><div class="tip-title">Speak clearly</div><div class="tip-desc">Ask any interview question naturally</div></div>
-        <div class="tip-card"><span class="tip-icon">⚡</span><div class="tip-title">Instant answer</div><div class="tip-desc">Streams in real-time as text only</div></div>
-        <div class="tip-card"><span class="tip-icon">📋</span><div class="tip-title">Full history</div><div class="tip-desc">All Q&As saved in this session</div></div>
+  <div class="feed" id="feed">
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">🎤</div>
+      <div class="empty-title">Ready for Your Interview</div>
+      <div class="empty-sub">Right-click anywhere on this screen — your mic starts instantly. Ask any interview question and get a structured expert answer.</div>
+      <div class="tips">
+        <div class="tip"><div class="tip-i">🖱</div><div class="tip-t">Right-click → instant mic</div><div class="tip-d">No menu needed — recording starts immediately</div></div>
+        <div class="tip"><div class="tip-i">🎤</div><div class="tip-t">Speak naturally</div><div class="tip-d">Ask any interview question clearly</div></div>
+        <div class="tip"><div class="tip-i">⚡</div><div class="tip-t">Text-only answer</div><div class="tip-d">Fast, clean, no audio output</div></div>
+        <div class="tip"><div class="tip-i">🔁</div><div class="tip-t">Auto-retry</div><div class="tip-d">Rate limits handled automatically</div></div>
       </div>
     </div>
   </div>
 
-  <div class="status-bar">
-    <div class="status-indicator">
-      <div class="status-dot"></div>
-      <span id="status-text">Ready — right-click anywhere to ask a question</span>
+  <div class="statusbar">
+    <div class="status-left">
+      <div class="status-led"></div>
+      <span id="status-txt">Ready — right-click anywhere to start</span>
     </div>
-    <button class="clear-btn" onclick="clearAll()">Clear history</button>
+    <button class="status-clear" onclick="clearFeed()">Clear history</button>
   </div>
 </div>
 
-<!-- Recording Overlay -->
-<div id="recording-overlay">
-  <div class="rec-ring"><div class="rec-btn-inner">🎤</div></div>
+<!-- ══ RECORDING OVERLAY ══ -->
+<div id="rec-overlay">
+  <div class="rec-ring"><div class="rec-core">🎤</div></div>
   <div class="rec-label">Listening…</div>
-  <div class="rec-sub">Speak your interview question clearly, then pause</div>
-  <div class="rec-transcript" id="rec-transcript">Waiting for speech...</div>
-  <button class="rec-cancel" onclick="cancelRecording()">Cancel (Esc)</button>
-</div>
-
-<!-- Context Menu -->
-<div id="ctx-menu">
-  <div class="ctx-item primary" onclick="startVoiceCapture()">
-    <span>🎤</span><span>Ask Interview Question</span>
-  </div>
-  <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="clearAll()"><span>🗑</span><span>Clear History</span></div>
-  <div class="ctx-item" onclick="goToSettings()"><span>⚙️</span><span>Settings / Change AI</span></div>
+  <div class="rec-sub">Speak your interview question, then pause</div>
+  <div class="rec-box" id="rec-txt">Waiting for speech…</div>
+  <button class="rec-cancel" onclick="stopRec()">Cancel  (Esc)</button>
 </div>
 
 <script>
-  let selectedAI = 'gemini';
-  let apiKey = 'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo';
-  let micStream = null; // holds persistent mic stream
-  let isRecording = false;
-  let recognition = null;
-  let qaCount = 0;
+/* ── state ── */
+const keys = { gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo', claude:'', openai:'' };
+let ai = 'gemini', micStream = null, recog = null, recording = false, qid = 0;
 
-  // ─── MIC: Grant once, keep stream alive so browser never asks again ───
-  async function grantMicPermission() {
-    const btn = document.getElementById('mic-grant-btn');
-    const status = document.getElementById('mic-status');
-    btn.textContent = 'Requesting...';
-    btn.disabled = true;
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Keep the stream alive silently — this is the key trick
-      status.textContent = '✓ Microphone granted — no more popups!';
-      status.className = 'mic-status granted';
-      btn.style.display = 'none';
-    } catch (err) {
-      status.textContent = '✗ Denied — please allow mic in browser settings';
-      status.className = 'mic-status denied';
-      btn.textContent = 'Try Again';
-      btn.disabled = false;
+/* ── setup helpers ── */
+function pickAI(v) {
+  keys[ai] = document.getElementById('key-input').value.trim(); // save current
+  ai = v;
+  document.querySelectorAll('.ai-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.ai-card[data-ai="${v}"]`).classList.add('selected');
+  const labels = { gemini:'Gemini API Key', claude:'Anthropic API Key', openai:'OpenAI API Key' };
+  const ph     = { gemini:'AIzaSy…', claude:'sk-ant-…', openai:'sk-proj-…' };
+  const hints  = {
+    gemini: 'Free tier: <strong style="color:var(--amber)">gemini-2.5-flash</strong> (auto-retry on limits). Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
+    claude: 'Key → <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
+    openai: 'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
+  };
+  document.getElementById('key-label').textContent = labels[v];
+  document.getElementById('key-input').placeholder = ph[v];
+  document.getElementById('key-input').value = keys[v];
+  document.getElementById('key-hint').innerHTML = hints[v];
+  document.getElementById('rate-notice').style.display = v === 'gemini' ? 'block' : 'none';
+}
+
+function toggleEye() {
+  const i = document.getElementById('key-input');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+async function grantMic() {
+  const btn = document.getElementById('mic-btn');
+  const st  = document.getElementById('mic-st');
+  btn.textContent = 'Requesting…'; btn.disabled = true;
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    st.textContent = '✓ Granted — no more popups!'; st.className = 'mic-status ok';
+    btn.style.display = 'none';
+  } catch {
+    st.textContent = '✗ Denied — allow mic in Chrome settings'; st.className = 'mic-status err';
+    btn.textContent = 'Try Again'; btn.disabled = false;
+  }
+}
+
+function launch() {
+  keys[ai] = document.getElementById('key-input').value.trim();
+  const err = document.getElementById('key-err');
+  if (!keys[ai]) { err.textContent = 'Please enter your API key.'; err.style.display='block'; return; }
+  err.style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'flex';
+  syncBadge();
+}
+
+function syncBadge() {
+  const nm = { gemini:'Gemini', claude:'Claude', openai:'ChatGPT' };
+  document.getElementById('badge-txt').textContent = nm[ai];
+  document.getElementById('badge-dot').className = `pill-dot ${ai}`;
+}
+
+function goSettings() {
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('key-input').value = keys[ai];
+}
+
+/* ── right-click = instant record ── */
+document.addEventListener('contextmenu', e => {
+  if (document.getElementById('main-app').style.display === 'flex') {
+    e.preventDefault();
+    if (!recording) startRec();
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') stopRec(); });
+
+function startRec() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Voice input needs Google Chrome or Edge.'); return;
+  }
+  document.getElementById('rec-overlay').classList.add('on');
+  document.getElementById('rec-txt').textContent = 'Waiting for speech…';
+  document.getElementById('status-txt').textContent = '🎤 Recording — speak now…';
+  recording = true;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recog = new SR();
+  recog.continuous = false; recog.interimResults = true; recog.lang = 'en-US';
+
+  recog.onresult = e => {
+    let f='', t='';
+    for (let i=e.resultIndex;i<e.results.length;i++) {
+      if (e.results[i].isFinal) f+=e.results[i][0].transcript;
+      else t+=e.results[i][0].transcript;
     }
-  }
+    document.getElementById('rec-txt').textContent = f||t||'Listening…';
+  };
 
-  function selectAI(ai) {
-    selectedAI = ai;
-    document.querySelectorAll('.ai-card').forEach(c => c.classList.remove('selected'));
-    document.querySelector(`.ai-card[data-ai="${ai}"]`).classList.add('selected');
-  }
+  recog.onend = () => {
+    const q = document.getElementById('rec-txt').textContent.trim();
+    document.getElementById('rec-overlay').classList.remove('on');
+    recording = false;
+    if (q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
+    else setStatus('Ready — right-click anywhere to start');
+  };
 
-  function toggleKey() {
-    const inp = document.getElementById('api-key-input');
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-  }
+  recog.onerror = err => {
+    document.getElementById('rec-overlay').classList.remove('on');
+    recording = false;
+    const m = { 'not-allowed':'Mic blocked — grant permission on setup screen', 'no-speech':'No speech — try again' };
+    setStatus('⚠ ' + (m[err.error]||err.error));
+    setTimeout(()=>setStatus('Ready — right-click anywhere to start'), 4000);
+  };
 
-  function startApp() {
-    apiKey = document.getElementById('api-key-input').value.trim();
-    if (!apiKey) {
-      const e = document.getElementById('error-msg');
-      e.textContent = 'Please enter your API key.';
-      e.style.display = 'block';
-      return;
-    }
-    document.getElementById('error-msg').style.display = 'none';
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
-    updateBadge();
-  }
+  recog.start();
+}
 
-  function updateBadge() {
-    const names = { claude: 'Claude', openai: 'ChatGPT', gemini: 'Gemini' };
-    document.getElementById('badge-text').textContent = names[selectedAI];
-    document.getElementById('badge-dot').className = `ai-badge-dot ${selectedAI}`;
-  }
+function stopRec() {
+  if (recog) { try{ recog.stop() }catch{} recog=null; }
+  document.getElementById('rec-overlay').classList.remove('on');
+  recording = false;
+  setStatus('Ready — right-click anywhere to start');
+}
 
-  function goToSettings() {
-    hideCtxMenu();
-    document.getElementById('main-app').style.display = 'none';
-    document.getElementById('setup-screen').style.display = 'flex';
-    document.getElementById('api-key-input').value = apiKey;
-  }
+/* ── answer pipeline ── */
+async function answerQ(question) {
+  qid++;
+  const id = qid;
+  const es = document.getElementById('empty-state');
+  if (es) es.style.display = 'none';
+  setStatus('⏳ Generating answer…');
 
-  function hideCtxMenu() { document.getElementById('ctx-menu').style.display = 'none'; }
+  const cols  = { gemini:'var(--gemini)', claude:'var(--claude)', openai:'var(--openai)' };
+  const names = { gemini:'Gemini', claude:'Claude', openai:'ChatGPT' };
+  const now   = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
-  document.addEventListener('contextmenu', e => {
-    if (document.getElementById('main-app').style.display === 'flex') {
-      e.preventDefault();
-      const m = document.getElementById('ctx-menu');
-      m.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
-      m.style.top = Math.min(e.clientY, window.innerHeight - 130) + 'px';
-      m.style.display = 'block';
-    }
-  });
-  document.addEventListener('click', hideCtxMenu);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { hideCtxMenu(); cancelRecording(); }
-  });
-
-  function startVoiceCapture() {
-    hideCtxMenu();
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Please use Google Chrome or Microsoft Edge for voice input.');
-      return;
-    }
-    const overlay = document.getElementById('recording-overlay');
-    overlay.classList.add('active');
-    document.getElementById('rec-transcript').textContent = 'Waiting for speech...';
-    isRecording = true;
-    document.getElementById('status-text').textContent = '🎤 Recording...';
-
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SR();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = e => {
-      let interim = '', final = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) final += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
-      }
-      document.getElementById('rec-transcript').textContent = final || interim || 'Listening...';
-    };
-
-    recognition.onend = () => {
-      const text = document.getElementById('rec-transcript').textContent.trim();
-      overlay.classList.remove('active');
-      isRecording = false;
-      if (text && text !== 'Waiting for speech...' && text !== 'Listening...') {
-        handleQuestion(text);
-      } else {
-        document.getElementById('status-text').textContent = 'Ready — right-click anywhere to ask a question';
-      }
-    };
-
-    recognition.onerror = err => {
-      overlay.classList.remove('active');
-      isRecording = false;
-      const msgs = { 'not-allowed': 'Mic blocked — click "Allow Microphone" in setup', 'no-speech': 'No speech detected — try again' };
-      document.getElementById('status-text').textContent = '⚠ ' + (msgs[err.error] || err.error);
-      setTimeout(() => document.getElementById('status-text').textContent = 'Ready — right-click anywhere to ask a question', 4000);
-    };
-
-    recognition.start();
-  }
-
-  function cancelRecording() {
-    if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
-    document.getElementById('recording-overlay').classList.remove('active');
-    isRecording = false;
-    document.getElementById('status-text').textContent = 'Ready — right-click anywhere to ask a question';
-  }
-
-  async function handleQuestion(question) {
-    qaCount++;
-    const ws = document.getElementById('welcome-state');
-    if (ws) ws.style.display = 'none';
-    document.getElementById('status-text').textContent = '⏳ Getting answer...';
-
-    const container = document.getElementById('qa-container');
-    const modelColors = { claude: 'var(--claude)', openai: 'var(--openai)', gemini: 'var(--gemini)' };
-    const modelNames = { claude: 'Claude', openai: 'ChatGPT', gemini: 'Gemini' };
-    const now = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    const id = qaCount;
-
-    const item = document.createElement('div');
-    item.className = 'qa-item';
-    item.innerHTML = `
-      <div class="qa-question">
-        <div class="qa-q-icon">Q</div>
-        <div class="qa-q-text">${escHtml(question)}</div>
+  const card = document.createElement('div');
+  card.className = 'qa';
+  card.innerHTML = `
+    <div class="qa-q">
+      <div class="qa-q-badge">Q</div>
+      <div class="qa-q-text">${esc(question)}</div>
+    </div>
+    <div class="qa-a" id="qa-a-${id}">
+      <div class="qa-a-meta">
+        <div class="qa-a-dot" style="background:${cols[ai]}"></div>
+        <span class="qa-a-name" style="color:${cols[ai]}">${names[ai]}</span>
+        <span class="qa-a-time">${now}</span>
       </div>
-      <div class="qa-answer" id="ans-${id}">
-        <div class="qa-a-header">
-          <div class="qa-a-dot" style="background:${modelColors[selectedAI]}"></div>
-          <span class="qa-a-model" style="color:${modelColors[selectedAI]}">${modelNames[selectedAI]}</span>
-          <span class="qa-a-time">${now}</span>
-        </div>
-        <div class="qa-loading" id="load-${id}">
-          <div class="dots-loader"><span></span><span></span><span></span></div>
-          Generating answer...
-        </div>
-      </div>`;
-    container.appendChild(item);
-    item.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      <div id="qa-body-${id}" style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)">
+        <div class="dot-loader"><span></span><span></span><span></span></div> Generating…
+      </div>
+    </div>`;
+  document.getElementById('feed').appendChild(card);
+  card.scrollIntoView({ behavior:'smooth', block:'end' });
 
+  try {
+    if (ai === 'claude')  await doClaude(question, id);
+    else if (ai === 'openai') { const a = await doOpenAI(question); showText(id, a, card); }
+    else { const a = await doGemini(question, id); showText(id, a, card); }
+    setStatus(`✓ ${id} question${id>1?'s':''} answered — right-click to ask more`);
+  } catch(e) {
+    document.getElementById('qa-body-'+id).innerHTML =
+      `<span style="color:var(--red)">⚠ ${esc(e.message||'API error')}</span>`;
+    setStatus('⚠ Error — see answer card for details');
+  }
+}
+
+/* ── Gemini 1.5 Flash with live countdown retry ── */
+async function doGemini(question, cardId) {
+  const prompt = `You are an expert interview coach with deep knowledge across all industries and roles.
+
+Answer the following interview question in a clear, professional, and structured format:
+
+Question: "${question}"
+
+Your answer should include:
+1. **Direct Answer** — a confident, clear opening statement
+2. **Key Points** — 3-4 bullet points expanding on your answer  
+3. **STAR Example** — a concrete Situation/Task/Action/Result example (if applicable)
+4. **Closing Statement** — a strong memorable closing line
+
+Keep the tone professional yet natural.`;
+
+  const MODEL = 'gemini-2.5-flash'; // ← current free tier model (replaces deprecated 1.5-flash & 2.0-flash)
+  const url   = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
+
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    if (attempt > 1) {
+      // show live countdown in the card
+      const waitsec = attempt * 6; // 12s, 18s, 24s, 30s
+      await liveCountdown(cardId, waitsec, attempt);
+      setStatus(`⏳ Retrying… (attempt ${attempt}/5)`);
+      const body = document.getElementById('qa-body-'+cardId);
+      if (body) body.innerHTML = `<div class="dot-loader"><span></span><span></span><span></span></div> Retrying with ${MODEL}…`;
+    }
+
+    let res;
     try {
-      if (selectedAI === 'claude') {
-        await askClaude(question, id);
-      } else {
-        let answer = selectedAI === 'openai' ? await askOpenAI(question) : await askGemini(question);
-        document.getElementById('load-' + id).style.display = 'none';
-        const ansEl = document.createElement('div');
-        ansEl.className = 'qa-a-text';
-        document.getElementById('ans-' + id).appendChild(ansEl);
-        await typeWriter(ansEl, answer, item);
-      }
-      document.getElementById('status-text').textContent = `✓ ${id} question${id > 1 ? 's' : ''} answered — right-click to ask more`;
-    } catch (err) {
-      document.getElementById('load-' + id).style.display = 'none';
-      const e = document.createElement('div');
-      e.className = 'qa-a-text';
-      e.style.color = 'var(--red)';
-      e.textContent = '⚠ ' + (err.message || 'API error. Check your key.');
-      document.getElementById('ans-' + id).appendChild(e);
-      document.getElementById('status-text').textContent = '⚠ Error — check API key';
+      res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          contents:[{parts:[{text:prompt}]}],
+          generationConfig:{ temperature:0.7, maxOutputTokens:900 }
+        })
+      });
+    } catch(netErr) {
+      throw new Error('Network error — check your internet connection.');
     }
-  }
 
-  async function askGemini(question) {
-    const prompt = `You are an expert interview coach. Answer this interview question in a structured way:\n\n${question}\n\nProvide: 1) Direct answer, 2) Key points, 3) STAR example if relevant, 4) Strong closing statement.`;
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 1024 } })
-    });
-    if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error(e?.error?.message || `Gemini error ${res.status}`); }
+    if (res.status === 429) {
+      // Try to read suggested retry-after from body
+      const errBody = await res.json().catch(()=>({}));
+      const msg = errBody?.error?.message || '';
+      const match = msg.match(/retry.*?([\d.]+)\s*s/i);
+      if (match && attempt < 5) {
+        const sugWait = Math.ceil(parseFloat(match[1])) + 3;
+        await liveCountdown(cardId, sugWait, attempt);
+        continue;
+      }
+      if (attempt === 5) throw new Error('Free tier quota exhausted. Please wait ~1 minute then try again, or enable billing at aistudio.google.com');
+      continue; // retry
+    }
+
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({}));
+      const msg = e?.error?.message || `HTTP ${res.status}`;
+      // Don't retry non-429 errors
+      throw new Error(msg);
+    }
+
     const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received from Gemini.';
   }
+  throw new Error('Failed after 5 attempts. Please wait a minute and try again.');
+}
 
-  async function askClaude(question, id) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 1024, stream: true, system: 'You are an expert interview coach. Answer interview questions clearly using STAR method where applicable.', messages: [{ role: 'user', content: question }] })
-    });
-    if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error(e?.error?.message || `HTTP ${res.status}`); }
-    document.getElementById('load-' + id).style.display = 'none';
-    const ansEl = document.createElement('div');
-    ansEl.className = 'qa-a-text';
-    document.getElementById('ans-' + id).appendChild(ansEl);
-    const cursor = document.createElement('span');
-    cursor.className = 'cursor-blink';
-    ansEl.appendChild(cursor);
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      for (const line of decoder.decode(value).split('\n')) {
-        if (line.startsWith('data: ')) {
-          try {
-            const p = JSON.parse(line.slice(6));
-            if (p.type === 'content_block_delta' && p.delta?.text) {
-              fullText += p.delta.text;
-              ansEl.textContent = fullText;
-              ansEl.appendChild(cursor);
-            }
-          } catch {}
-        }
-      }
-    }
-    cursor.remove();
-  }
+function liveCountdown(cardId, secs, attempt) {
+  return new Promise(resolve => {
+    const body = document.getElementById('qa-body-'+cardId);
+    if (!body) { setTimeout(resolve, secs*1000); return; }
 
-  async function askOpenAI(question) {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: 'gpt-4o', max_tokens: 1024, messages: [{ role: 'system', content: 'You are an expert interview coach.' }, { role: 'user', content: question }] })
-    });
-    if (!res.ok) { const e = await res.json().catch(()=>{}); throw new Error(e?.error?.message || `HTTP ${res.status}`); }
-    return (await res.json()).choices[0].message.content;
-  }
-
-  async function typeWriter(el, text, item) {
-    const cursor = document.createElement('span');
-    cursor.className = 'cursor-blink';
-    el.appendChild(cursor);
-    let i = 0;
-    return new Promise(resolve => {
-      const iv = setInterval(() => {
-        if (i >= text.length) { clearInterval(iv); cursor.remove(); resolve(); return; }
-        el.textContent = text.slice(0, i += 5);
-        el.appendChild(cursor);
-        item.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 8);
-    });
-  }
-
-  function clearAll() {
-    hideCtxMenu(); qaCount = 0;
-    document.getElementById('qa-container').innerHTML = `
-      <div class="welcome-state" id="welcome-state">
-        <div class="welcome-icon">🎤</div>
-        <div class="welcome-title">Ready to Ace Your Interview</div>
-        <div class="welcome-sub">Right-click anywhere to ask interview questions via voice.</div>
-        <div class="tips-grid">
-          <div class="tip-card"><span class="tip-icon">🖱</span><div class="tip-title">Right-click</div><div class="tip-desc">Opens menu to start voice input</div></div>
-          <div class="tip-card"><span class="tip-icon">🎤</span><div class="tip-title">Speak clearly</div><div class="tip-desc">Ask any interview question naturally</div></div>
-          <div class="tip-card"><span class="tip-icon">⚡</span><div class="tip-title">Instant answer</div><div class="tip-desc">Streams in real-time as text only</div></div>
-          <div class="tip-card"><span class="tip-icon">📋</span><div class="tip-title">Full history</div><div class="tip-desc">All Q&As saved in this session</div></div>
+    let rem = secs;
+    body.innerHTML = `
+      <div style="width:100%">
+        <div class="retry-row">
+          ⏳ Rate limited — retrying in <strong id="cd-${cardId}">${rem}s</strong>&nbsp;(attempt ${attempt}/5)
+          <div class="retry-bar"><div class="retry-fill" id="cf-${cardId}" style="width:100%"></div></div>
         </div>
       </div>`;
-    document.getElementById('status-text').textContent = 'Ready — right-click anywhere to ask a question';
-  }
 
-  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    const t = setInterval(()=>{
+      rem--;
+      const cd = document.getElementById(`cd-${cardId}`);
+      const cf = document.getElementById(`cf-${cardId}`);
+      if (cd) cd.textContent = rem+'s';
+      if (cf) cf.style.width = ((rem/secs)*100)+'%';
+      if (rem <= 0) { clearInterval(t); resolve(); }
+    }, 1000);
+  });
+}
+
+/* ── Claude streaming ── */
+async function doClaude(question, id) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': keys.claude,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerously-allow-browser':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-3-5-sonnet-20241022', max_tokens:1024, stream:true,
+      system:'You are an expert interview coach. Give structured answers using STAR method where applicable.',
+      messages:[{role:'user', content:question}]
+    })
+  });
+  if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
+
+  document.getElementById('qa-body-'+id).innerHTML = '';
+  const txt = document.createElement('div');
+  txt.className = 'qa-a-body';
+  const cur = document.createElement('span');
+  cur.className = 'cursor';
+  txt.appendChild(cur);
+  document.getElementById('qa-body-'+id).appendChild(txt);
+
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let full = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    for (const line of dec.decode(value).split('\n')) {
+      if (line.startsWith('data: ')) {
+        try {
+          const p = JSON.parse(line.slice(6));
+          if (p.type==='content_block_delta' && p.delta?.text) {
+            full += p.delta.text;
+            txt.textContent = full;
+            txt.appendChild(cur);
+          }
+        } catch {}
+      }
+    }
+  }
+  cur.remove();
+}
+
+/* ── OpenAI ── */
+async function doOpenAI(question) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${keys.openai}`},
+    body: JSON.stringify({
+      model:'gpt-4o', max_tokens:1024,
+      messages:[
+        {role:'system', content:'You are an expert interview coach. Give structured answers using STAR method.'},
+        {role:'user', content:question}
+      ]
+    })
+  });
+  if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
+  return (await res.json()).choices[0].message.content;
+}
+
+/* ── typewriter for non-streaming ── */
+function showText(id, text, card) {
+  const body = document.getElementById('qa-body-'+id);
+  if (!body) return;
+  body.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'qa-a-body';
+  body.appendChild(el);
+  const cur = document.createElement('span');
+  cur.className = 'cursor';
+  el.appendChild(cur);
+  let i = 0;
+  const iv = setInterval(()=>{
+    if (i >= text.length) { clearInterval(iv); cur.remove(); return; }
+    el.textContent = text.slice(0, i+=6);
+    el.appendChild(cur);
+    card.scrollIntoView({ behavior:'smooth', block:'end' });
+  }, 7);
+}
+
+/* ── utility ── */
+function setStatus(msg) { document.getElementById('status-txt').textContent = msg; }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function clearFeed() {
+  qid = 0;
+  document.getElementById('feed').innerHTML = `
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">🎤</div>
+      <div class="empty-title">Ready for Your Interview</div>
+      <div class="empty-sub">Right-click anywhere — your mic starts instantly.</div>
+      <div class="tips">
+        <div class="tip"><div class="tip-i">🖱</div><div class="tip-t">Right-click → instant mic</div><div class="tip-d">Recording starts immediately</div></div>
+        <div class="tip"><div class="tip-i">🎤</div><div class="tip-t">Speak naturally</div><div class="tip-d">Any interview question</div></div>
+        <div class="tip"><div class="tip-i">⚡</div><div class="tip-t">Text-only answer</div><div class="tip-d">Fast, clean, no audio</div></div>
+        <div class="tip"><div class="tip-i">🔁</div><div class="tip-t">Auto-retry</div><div class="tip-d">Rate limits handled automatically</div></div>
+      </div>
+    </div>`;
+  setStatus('Ready — right-click anywhere to start');
+}
 </script>
 </body>
 </html>
