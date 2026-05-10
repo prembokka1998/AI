@@ -84,12 +84,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .hint a{color:#4f46e5;text-decoration:none}
 .err{color:#dc2626;font-size:12px;margin-top:4px;display:none}
 
-.notice{
-  background:#fffbeb;border:1px solid #fde68a;border-radius:8px;
-  padding:11px 14px;margin-bottom:20px;font-size:12px;color:#92400e;line-height:1.6;
-}
-.notice strong{color:#d97706}
-
 .mic-box{
   display:flex;gap:12px;align-items:flex-start;
   background:#f0fdf4;border:1px solid #86efac;border-radius:8px;
@@ -251,16 +245,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-body blockquote { border-left: 4px solid #818cf8; background: #f8f7ff; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; color: #4338ca; font-style: italic; }
 .qa-a-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 24px 0; }
 
-/* Clean Retry Text UI (Updated) */
-.retry-wrap{
-  color: #d97706; 
-  font-size: 14px; 
-  font-weight: 500;
-  padding: 8px 0;
-  display:flex; 
-  align-items:center;
-}
-
 /* Loader */
 .loader{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:13px;padding:4px 0}
 .dots{display:flex;gap:4px}
@@ -391,10 +375,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong>. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
     </div>
 
-    <div class="notice" id="rnotice">
-      ⚡ <strong>Auto-retry enabled:</strong> If rate-limited, the app waits and retries automatically.
-    </div>
-
     <div class="mic-box">
       <div class="mic-box-icon">🎤</div>
       <div>
@@ -437,8 +417,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div class="e-tips">
         <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
         <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
-        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read.</div></div>
-        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically.</div></div>
+        <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
+        <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
       </div>
     </div>
   </div>
@@ -462,10 +442,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo', claude:'', openai:'', serper:''};
 let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
 let finalTranscript = '';
+let activeController = null; // Used to instantly abort ongoing API requests
 
-/* ── AI Prompt generator ── */
+/* ── AI Prompt generator with SAP CPI explicit context ── */
 function getPrompt(question) {
-  return `You are an expert interview coach. Answer the following interview question in a clear, professional, structured format.
+  return `You are an expert interview coach specializing in SAP Cloud Platform Integration (SAP CPI). The candidate is interviewing for an SAP CPI Integration Developer role. Whenever the candidate asks a conceptual or technical question (e.g., "what is content enrich", "what is a message mapping"), you MUST assume it is in the context of SAP CPI, even if they don't explicitly mention SAP CPI.
+
+Answer the following interview question in a clear, professional, structured format.
 
 Question: "${question}"
 
@@ -506,7 +489,6 @@ function pickAI(v){
   document.getElementById('kval').placeholder=P[v];
   document.getElementById('kval').value=keys[v];
   document.getElementById('khint').innerHTML=H[v];
-  document.getElementById('rnotice').style.display=v==='gemini'?'block':'none';
 }
 
 function toggleEye(){const i=document.getElementById('kval');i.type=i.type==='password'?'text':'password'}
@@ -546,14 +528,10 @@ function goSet(){
   document.getElementById('kval').value=keys[ai];
 }
 
-/* ── Toggle Record Interaction ── */
+/* ── Toggle Record Interaction & Instant Interrupt ── */
 document.addEventListener('contextmenu', e => {
   if (document.getElementById('app').style.display === 'flex') {
     e.preventDefault();
-    if (isBusy) {
-      showBusyFlash();
-      return;
-    }
     
     // Toggle functionality
     if (!isRec) {
@@ -572,16 +550,23 @@ function startRec(){
   if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
     alert('Please use Google Chrome or Edge for voice input.');return;
   }
+  
+  // IMMEDIATELY abort any ongoing API fetching or typing effects
+  if (activeController) {
+    activeController.abort();
+  }
+  activeController = new AbortController();
+  isBusy = false; // Reset busy flag instantly
+
   document.getElementById('rec').classList.add('on');
   document.getElementById('rtxt').textContent='Waiting for speech…';
   document.getElementById('stxt').textContent='🎤 Recording — right-click again to send';
   isRec=true;
-  finalTranscript = ''; // Reset accumulation string
+  finalTranscript = ''; 
 
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recog=new SR();
   
-  // Continuous = true so it keeps listening through pauses
   recog.continuous=true; 
   recog.interimResults=true;
   recog.lang='en-US';
@@ -597,10 +582,15 @@ function startRec(){
   };
 
   recog.onend=()=>{
-    // When stopped manually via toggle, process the question
     document.getElementById('rec').classList.remove('on');
     isRec=false;
-    const q = document.getElementById('rtxt').textContent.trim();
+    
+    let q = document.getElementById('rtxt').textContent.trim();
+    
+    // Auto-Correct: Fix common speech recognition errors for SAP CPI
+    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI');
+    q = q.replace(/\bCPA\b/gi, 'CPI');
+    
     if(q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
     else setSt('Ready — right-click anywhere to start');
   };
@@ -633,7 +623,7 @@ async function answerQ(question){
   const empty=document.getElementById('empty');
   if(empty)empty.style.display='none';
 
-  // Clear previous cards to only show the latest centered
+  // Clear previous cards
   document.querySelectorAll('.qa').forEach(el => el.remove());
 
   setSt('⏳ Fetching data…');
@@ -666,14 +656,18 @@ async function answerQ(question){
 
   try{
     let text='';
-    if(ai==='claude') await doClaude(question,id);
-    else if(ai==='openai'){text=await doOpenAI(question);renderText(id,text,card);}
-    else if(ai==='serper'){text=await doSerper(question);renderText(id,text,card);}
-    else{text=await doGemini(question,id);renderText(id,text,card);}
+    if(ai==='claude') await doClaude(question,id, activeController.signal);
+    else if(ai==='openai'){text=await doOpenAI(question, activeController.signal);renderText(id,text,card);}
+    else if(ai==='serper'){text=await doSerper(question, activeController.signal);renderText(id,text,card);}
+    else{text=await doGemini(question,id, activeController.signal);renderText(id,text,card);}
     
     setSt(`✓ Request complete — right-click to ask another`);
     isBusy=false; syncHint(false);
   }catch(e){
+    if (e.name === 'AbortError') {
+      console.log('Request cancelled by user');
+      return; // Do nothing if we manually aborted
+    }
     document.getElementById('body-'+id).outerHTML=`
       <div class="qa-err">⚠️ <span>${esc(e.message||'API error — check your key')}</span></div>`;
     setSt('⚠ Error — see the answer card');
@@ -693,6 +687,12 @@ function renderText(id, text, card) {
 
   const CHUNK = 8;
   const iv = setInterval(() => {
+    // If the controller was aborted while typing, stop typing
+    if (activeController && activeController.signal.aborted) {
+      clearInterval(iv);
+      return; 
+    }
+    
     if (i >= text.length) {
       clearInterval(iv);
       div.innerHTML = marked.parse(text);
@@ -706,15 +706,16 @@ function renderText(id, text, card) {
   }, 15);
 }
 
-/* ── NEW: Serper Google Search Integration ── */
-async function doSerper(question) {
+/* ── API CALLS ── */
+async function doSerper(question, signal) {
   const res = await fetch('https://google.serper.dev/search', {
     method: 'POST',
     headers: {
       'X-API-KEY': keys.serper,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ q: question })
+    body: JSON.stringify({ q: question }),
+    signal: signal
   });
 
   if (!res.ok) {
@@ -746,74 +747,33 @@ async function doSerper(question) {
   return md;
 }
 
-/* ── Gemini 2.5-flash with clean retry ── */
-async function doGemini(question,cid){
+/* Updated Gemini: Removed the retry loop. Fails immediately on 429 so you don't wait. */
+async function doGemini(question, cid, signal){
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
 
-  for(let attempt=1;attempt<=5;attempt++){
-    if(attempt>1){
-      const wait=attempt*7;
-      await countdown(cid,wait,attempt);
-      setSt(`⏳ Retrying… (attempt ${attempt}/5)`);
-      const b=document.getElementById('body-'+cid);
-      if(b)b.innerHTML='<div class="dots"><span></span><span></span><span></span></div> Retrying…';
-    }
-
-    let res;
-    try{
-      res=await fetch(URL,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          contents:[{parts:[{text:getPrompt(question)}]}],
-          generationConfig:{temperature:.7,maxOutputTokens:1024}
-        })
-      });
-    }catch{throw new Error('Network error — check your internet connection.')}
-
-    if(res.status===429){
-      const errBody=await res.json().catch(()=>({}));
-      const msg=errBody?.error?.message||'';
-      const m=msg.match(/retry.*?([\d.]+)\s*s/i);
-      if(m&&attempt<5){const w=Math.ceil(parseFloat(m[1]))+3;await countdown(cid,w,attempt);continue}
-      if(attempt===5)throw new Error('Free tier quota exhausted. Please wait ~1 minute then try again.');
-      continue;
-    }
-    if(!res.ok){
-      const e=await res.json().catch(()=>({}));
-      throw new Error(e?.error?.message||`API error ${res.status}`);
-    }
-    const data=await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
-  }
-  throw new Error('Failed after 5 attempts.');
-}
-
-// Updated clean retry text
-function countdown(cid,secs,attempt){
-  return new Promise(resolve=>{
-    const body=document.getElementById('body-'+cid);
-    if(!body){setTimeout(resolve,secs*1000);return}
-    let rem=secs;
-    
-    // Clean text indicator matching the screenshot
-    body.innerHTML=`
-      <div class="retry-wrap">
-        ⏳ Rate limited — retrying in &nbsp;<strong id="cd-${cid}">${rem}s</strong>&nbsp; (attempt ${attempt}/5)
-      </div>`;
-      
-    const t=setInterval(()=>{
-      rem--;
-      const cd=document.getElementById(`cd-${cid}`);
-      if(cd)cd.textContent=`${rem}s`;
-      if(rem<=0){clearInterval(t);resolve()}
-    },1000);
+  const res=await fetch(URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      contents:[{parts:[{text:getPrompt(question)}]}],
+      generationConfig:{temperature:.7,maxOutputTokens:1024}
+    }),
+    signal: signal
   });
+
+  if(res.status===429){
+    throw new Error('API Rate limit reached (Free Tier). Please wait a few seconds and ask again.');
+  }
+  if(!res.ok){
+    const e=await res.json().catch(()=>({}));
+    throw new Error(e?.error?.message||`API error ${res.status}`);
+  }
+  const data=await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
 }
 
-/* ── Claude streaming ── */
-async function doClaude(question,id){
+async function doClaude(question, id, signal){
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{
@@ -824,9 +784,10 @@ async function doClaude(question,id){
     },
     body:JSON.stringify({
       model:'claude-3-5-sonnet-20241022',max_tokens:1024,stream:true,
-      system:'You are an expert interview coach.',
+      system:'You are an expert interview coach specializing in SAP CPI.',
       messages:[{role:'user',content:getPrompt(question)}]
-    })
+    }),
+    signal: signal
   });
   if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
 
@@ -856,35 +817,24 @@ async function doClaude(question,id){
   scrollBottom();
 }
 
-async function doOpenAI(question){
+async function doOpenAI(question, signal){
   const res=await fetch('https://api.openai.com/v1/chat/completions',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${keys.openai}`},
     body:JSON.stringify({
       model:'gpt-4o',max_tokens:1024,
       messages:[
-        {role:'system',content:'You are an expert interview coach.'},
+        {role:'system',content:'You are an expert interview coach specializing in SAP CPI.'},
         {role:'user',content:getPrompt(question)}
       ]
-    })
+    }),
+    signal: signal
   });
   if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
   return(await res.json()).choices[0].message.content;
 }
 
 /* ── utils ── */
-function showBusyFlash(){
-  const el=document.getElementById('busy-flash');
-  if(el){el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);return}
-  const f=document.createElement('div');
-  f.id='busy-flash';
-  f.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#fef3c7;border:1.5px solid #fcd34d;color:#92400e;font-size:13px;font-weight:600;padding:10px 20px;border-radius:30px;box-shadow:0 4px 14px rgba(0,0,0,.12);z-index:500;transition:opacity .4s;pointer-events:none;';
-  f.textContent='⏳ Please wait — processing data…';
-  document.body.appendChild(f);
-  setTimeout(()=>f.style.opacity='0',2000);
-  setTimeout(()=>f.remove(),2500);
-}
-
 function syncHint(busy){
   const h=document.querySelector('.tag-hint');
   if(!h)return;
@@ -908,8 +858,8 @@ function clearFeed(){
       <div class="e-tips">
         <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
         <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
-        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read.</div></div>
-        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically.</div></div>
+        <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
+        <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
       </div>
     </div>`;
   setSt('Ready — right-click anywhere to start');
