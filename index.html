@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InterviewAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -200,11 +201,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* QA Card */
 .qa{
   background:#fff;border:1.5px solid #e2e8f0;border-radius:var(--r-lg);
-  overflow:hidden;box-shadow:var(--shadow-lg); /* Increased shadow for focus */
+  overflow:hidden;box-shadow:var(--shadow-lg); 
   animation:pop .25s ease;
   width: 100%;
-  max-width: 900px; /* Constrain width for readability */
-  margin: auto; /* Centers the card vertically inside the flex container */
+  max-width: 900px; 
+  margin: auto; 
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -235,39 +236,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .b-o{background:#d1fae5;color:#065f46}
 .qa-a-time{font-size:11px;color:#94a3b8;margin-left:auto}
 
-/* Answer body — rendered markdown */
-.qa-a-body{font-size:14px;line-height:1.8;color:#334155}
-.qa-a-body p{margin-bottom:12px}
-.qa-a-body p:last-child{margin-bottom:0}
-.qa-a-body strong{font-weight:700;color:#1e293b}
-.qa-a-body em{font-style:italic;color:#475569}
-.qa-a-body ul,.qa-a-body ol{padding-left:20px;margin-bottom:12px}
-.qa-a-body li{margin-bottom:6px;line-height:1.65}
-.qa-a-body h1,.qa-a-body h2,.qa-a-body h3{
-  font-weight:700;color:#1e293b;margin:16px 0 8px;
-}
-.qa-a-body h1{font-size:18px}
-.qa-a-body h2{font-size:16px}
-.qa-a-body h3{font-size:14px;color:#374151}
-.qa-a-body code{
-  background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;
-  font-family:var(--mono);font-size:12px;padding:1px 6px;color:#be185d;
-}
-.qa-a-body blockquote{
-  border-left:3px solid #818cf8;background:#f8f7ff;
-  padding:10px 14px;border-radius:0 6px 6px 0;margin:12px 0;
-  color:#4338ca;font-style:italic;
-}
-/* Section labels like "1. **Direct Answer**" */
-.section-block{
-  background:#f8fafc;border-left:3px solid #818cf8;
-  border-radius:0 8px 8px 0;padding:12px 14px;margin:10px 0;
-}
-.section-block .s-head{
-  font-size:12px;font-weight:700;color:#4f46e5;
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;
-}
-.section-block .s-body{font-size:14px;color:#334155;line-height:1.75}
+/* Answer body — standard markdown formatting */
+.qa-a-body { font-size: 14.5px; line-height: 1.7; color: #334155; }
+.qa-a-body p { margin-bottom: 14px; }
+.qa-a-body p:last-child { margin-bottom: 0; }
+.qa-a-body strong { font-weight: 700; color: #0f172a; }
+.qa-a-body em { font-style: italic; color: #475569; }
+.qa-a-body ul, .qa-a-body ol { padding-left: 24px; margin-bottom: 16px; }
+.qa-a-body li { margin-bottom: 6px; line-height: 1.6; }
+.qa-a-body li::marker { color: #64748b; font-weight: 600; }
+.qa-a-body h1, .qa-a-body h2, .qa-a-body h3 { font-weight: 700; color: #1e293b; margin: 24px 0 10px; line-height: 1.3; }
+.qa-a-body h1 { font-size: 20px; }
+/* Replicating the nice header style natively via h2 */
+.qa-a-body h2 { font-size: 17px; color: #4f46e5; border-bottom: 1.5px solid #e0e7ff; padding-bottom: 6px; margin-top: 28px; }
+.qa-a-body h3 { font-size: 15px; color: #374151; }
+.qa-a-body code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; padding: 2px 6px; color: #be185d; }
+.qa-a-body pre { background: #1e293b; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
+.qa-a-body pre code { background: transparent; border: none; color: inherit; padding: 0; font-size: 13px; }
+.qa-a-body blockquote { border-left: 4px solid #818cf8; background: #f8f7ff; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; color: #4338ca; font-style: italic; }
+.qa-a-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 24px 0; }
 
 /* Retry countdown */
 .retry-wrap{padding:4px 0}
@@ -472,6 +459,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo',claude:'',openai:''};
 let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
 
+/* ── AI Prompt generator ── */
+function getPrompt(question) {
+  return `You are an expert interview coach. Answer the following interview question in a clear, professional, structured format.
+
+Question: "${question}"
+
+Structure your answer with these exact sections using Markdown headings (##):
+
+## 1. Direct Answer
+(confident 2-3 sentence response)
+
+## 2. Key Points
+(3-4 bullet points with detailed explanations)
+
+## 3. STAR Example
+(A concrete Situation/Task/Action/Result example, skip if not applicable)
+
+## 4. Closing Statement
+(A strong memorable final line)
+
+Use bullet points and bold text for emphasis. Be thorough but concise.`;
+}
+
 /* ── setup ── */
 function pickAI(v){
   keys[ai]=document.getElementById('kval').value.trim();
@@ -591,13 +601,11 @@ async function answerQ(question){
   const empty=document.getElementById('empty');
   if(empty)empty.style.display='none';
 
-  // ---> NEW: Clear previous answer cards so only the latest is visible <---
   document.querySelectorAll('.qa').forEach(el => el.remove());
 
   setSt('⏳ Generating answer…');
   syncHint(true);
 
-  const COLS={gemini:'#4285f4',claude:'#d97706',openai:'#059669'};
   const BADGE={gemini:'b-g',claude:'b-c',openai:'b-o'};
   const NAMES={gemini:'Gemini',claude:'Claude',openai:'ChatGPT'};
   const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -621,7 +629,6 @@ async function answerQ(question){
     </div>`;
 
   document.getElementById('feed').appendChild(card);
-  // Scroll to bottom — new card always visible
   scrollBottom();
 
   try{
@@ -639,114 +646,34 @@ async function answerQ(question){
   }
 }
 
-/* ── MARKDOWN RENDERER ── */
-function renderMarkdown(text){
-  // Process bold **text**
-  let html=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  // italic *text*
-  html=html.replace(/\*([^*\n]+?)\*/g,'<em>$1</em>');
-  // Split into lines and process
-  const lines=html.split('\n');
-  let out='',inUL=false,inOL=false;
-
-  for(let i=0;i<lines.length;i++){
-    const raw=lines[i];
-    const line=raw.trim();
-
-    // Numbered list item: "1. " or "2. " etc
-    if(/^\d+\.\s/.test(line)){
-      if(inUL){out+='</ul>';inUL=false}
-      if(!inOL){out+='<ol>';inOL=true}
-      // Check if it's a section header like "1. **Direct Answer**"
-      const sectionMatch=line.match(/^\d+\.\s+<strong>(.*?)<\/strong>(.*)/);
-      if(sectionMatch){
-        if(inOL){out+='</ol>';inOL=false}
-        const restLines=[];
-        let j=i+1;
-        while(j<lines.length&&lines[j].trim()!==''&&!/^\d+\./.test(lines[j].trim())){
-          restLines.push(lines[j].trim());j++;
-        }
-        i=j-1;
-        out+=`<div class="section-block">
-          <div class="s-head">${sectionMatch[1]}</div>
-          <div class="s-body">${sectionMatch[2].trim()||restLines.join(' ')}</div>
-        </div>`;
-        continue;
-      }
-      out+=`<li>${line.replace(/^\d+\.\s/,'')}</li>`;
-      continue;
-    }
-
-    // Bullet list: "* " or "- " or "• "
-    if(/^[*\-•]\s/.test(line)){
-      if(inOL){out+='</ol>';inOL=false}
-      if(!inUL){out+='<ul>';inUL=true}
-      out+=`<li>${line.replace(/^[*\-•]\s/,'')}</li>`;
-      continue;
-    }
-
-    // Close lists
-    if(inUL){out+='</ul>';inUL=false}
-    if(inOL){out+='</ol>';inOL=false}
-
-    // Heading ## or ###
-    if(/^###\s/.test(line)){out+=`<h3>${line.replace(/^###\s/,'')}</h3>`;continue}
-    if(/^##\s/.test(line)){out+=`<h2>${line.replace(/^##\s/,'')}</h2>`;continue}
-    if(/^#\s/.test(line)){out+=`<h1>${line.replace(/^#\s/,'')}</h1>`;continue}
-
-    // Empty line = paragraph break
-    if(line===''){out+='<br>';continue}
-
-    out+=`<p>${line}</p>`;
-  }
-  if(inUL)out+='</ul>';
-  if(inOL)out+='</ol>';
-  // Clean up excessive breaks
-  out=out.replace(/(<br>){3,}/g,'<br><br>');
-  return out;
-}
-
-function renderText(id,text,card){
-  const body=document.getElementById('body-'+id);
-  if(!body)return;
-  // Type-write effect then render markdown at end
-  let i=0;
-  const div=document.createElement('div');
-  div.className='qa-a-body';
-  const cur=document.createElement('span');
-  cur.className='cur';
-  div.appendChild(cur);
+/* ── Safe Markdown Rendering & Typing Effect ── */
+function renderText(id, text, card) {
+  const body = document.getElementById('body-' + id);
+  if (!body) return;
+  
+  let i = 0;
+  const div = document.createElement('div');
+  div.className = 'qa-a-body';
   body.replaceWith(div);
 
-  const CHUNK=8;
-  const iv=setInterval(()=>{
-    if(i>=text.length){
+  const CHUNK = 8;
+  const iv = setInterval(() => {
+    if (i >= text.length) {
       clearInterval(iv);
-      // Final render as markdown
-      div.innerHTML=renderMarkdown(text);
+      div.innerHTML = marked.parse(text);
       scrollBottom();
       return;
     }
-    div.textContent=text.slice(0,i+=CHUNK);
-    div.appendChild(cur);
+    i += CHUNK;
+    const partial = text.slice(0, i);
+    // Render markdown securely via external marked.js logic
+    div.innerHTML = marked.parse(partial) + '<span class="cur"></span>';
     scrollBottom();
-  },6);
+  }, 15);
 }
 
 /* ── Gemini 2.5-flash with smart retry ── */
 async function doGemini(question,cid){
-  const prompt=`You are an expert interview coach. Answer the following interview question in a clear, professional, structured format.
-
-Question: "${question}"
-
-Structure your answer with these exact sections:
-1. **Direct Answer** — A confident 2-3 sentence response
-2. **Key Points** — 3-4 bullet points with detailed explanations
-3. **STAR Example** — A concrete Situation/Task/Action/Result example (skip if not applicable)
-4. **Closing Statement** — A strong memorable final line
-
-Use clear headings, bullet points, and bold text for emphasis. Be thorough but concise.`;
-
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
 
@@ -765,7 +692,7 @@ Use clear headings, bullet points, and bold text for emphasis. Be thorough but c
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
-          contents:[{parts:[{text:prompt}]}],
+          contents:[{parts:[{text:getPrompt(question)}]}],
           generationConfig:{temperature:.7,maxOutputTokens:1024}
         })
       });
@@ -824,35 +751,35 @@ async function doClaude(question,id){
     },
     body:JSON.stringify({
       model:'claude-3-5-sonnet-20241022',max_tokens:1024,stream:true,
-      system:'You are an expert interview coach. Answer questions with clear structure, bold headings, and bullet points.',
-      messages:[{role:'user',content:question}]
+      system:'You are an expert interview coach.',
+      messages:[{role:'user',content:getPrompt(question)}]
     })
   });
   if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
 
   const body=document.getElementById('body-'+id);
   const div=document.createElement('div');div.className='qa-a-body';
-  const cur=document.createElement('span');cur.className='cur';
-  div.appendChild(cur);body.replaceWith(div);
+  body.replaceWith(div);
 
   const reader=res.body.getReader(),dec=new TextDecoder();
   let full='';
   while(true){
     const{done,value}=await reader.read();if(done)break;
-    for(const line of dec.decode(value).split('\n')){
+    const chunk = dec.decode(value, {stream:true});
+    for(const line of chunk.split('\n')){
       if(line.startsWith('data: ')){
         try{
           const p=JSON.parse(line.slice(6));
           if(p.type==='content_block_delta'&&p.delta?.text){
             full+=p.delta.text;
-            div.textContent=full;div.appendChild(cur);scrollBottom();
+            div.innerHTML = marked.parse(full) + '<span class="cur"></span>';
+            scrollBottom();
           }
         }catch{}
       }
     }
   }
-  cur.remove();
-  div.innerHTML=renderMarkdown(full);
+  div.innerHTML=marked.parse(full);
   scrollBottom();
 }
 
@@ -863,8 +790,8 @@ async function doOpenAI(question){
     body:JSON.stringify({
       model:'gpt-4o',max_tokens:1024,
       messages:[
-        {role:'system',content:'You are an expert interview coach. Use structured format with bold headings and bullet points.'},
-        {role:'user',content:question}
+        {role:'system',content:'You are an expert interview coach.'},
+        {role:'user',content:getPrompt(question)}
       ]
     })
   });
@@ -873,7 +800,6 @@ async function doOpenAI(question){
 }
 
 /* ── utils ── */
-/* ── busy flash: tells user to wait ── */
 function showBusyFlash(){
   const el=document.getElementById('busy-flash');
   if(el){el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);return}
