@@ -19,18 +19,6 @@
   --text3:#94a3b8;
   --accent:#4f46e5;
   --accent-light:#ede9fe;
-  --green:#059669;
-  --green-light:#d1fae5;
-  --red:#dc2626;
-  --red-light:#fee2e2;
-  --amber:#d97706;
-  --amber-light:#fef3c7;
-  --gemini:#4285f4;
-  --gemini-light:#dbeafe;
-  --claude:#d97706;
-  --claude-light:#fef3c7;
-  --openai:#059669;
-  --openai-light:#d1fae5;
   --font:'Inter',sans-serif;
   --mono:'JetBrains Mono',monospace;
   --r:10px; --r-sm:6px; --r-lg:16px;
@@ -62,7 +50,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 .s-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
 
-.ai-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+/* Grid updated to 2 columns to fit 4 options neatly */
+.ai-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
 .ai-opt{
   border:2px solid #e2e8f0;border-radius:10px;padding:14px 10px;
   cursor:pointer;text-align:center;transition:all .18s;background:#f8fafc;
@@ -71,10 +60,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .ai-opt.sel-gemini{border-color:#4285f4;background:#dbeafe}
 .ai-opt.sel-claude{border-color:#d97706;background:#fef3c7}
 .ai-opt.sel-openai{border-color:#059669;background:#d1fae5}
+.ai-opt.sel-serper{border-color:#4f46e5;background:#e0e7ff} 
+
 .ai-av{width:32px;height:32px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
 .av-g{background:#dbeafe;color:#4285f4}
 .av-c{background:#fef3c7;color:#d97706}
 .av-o{background:#d1fae5;color:#059669}
+.av-s{background:#e0e7ff;color:#4f46e5} 
+
 .ai-nm{font-size:13px;font-weight:600;color:#1e293b}
 .ai-by{font-size:10px;color:#94a3b8;margin-top:2px}
 
@@ -157,6 +150,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .td-g{background:#4285f4}
 .td-c{background:#d97706}
 .td-o{background:#059669}
+.td-s{background:#4f46e5}
+
 .cfg-btn{
   background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;
   width:32px;height:32px;display:flex;align-items:center;justify-content:center;
@@ -168,7 +163,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .feed{
   flex:1;overflow-y:auto;padding:24px 20px 32px;
   display:flex;flex-direction:column;
-  align-items:center; /* Centers content horizontally */
+  align-items:center; 
   scroll-behavior:smooth;
 }
 .feed::-webkit-scrollbar{width:5px}
@@ -234,6 +229,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .b-g{background:#dbeafe;color:#1d4ed8}
 .b-c{background:#fef3c7;color:#92400e}
 .b-o{background:#d1fae5;color:#065f46}
+.b-s{background:#e0e7ff;color:#3730a3} 
 .qa-a-time{font-size:11px;color:#94a3b8;margin-left:auto}
 
 /* Answer body — standard markdown formatting */
@@ -247,7 +243,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-body li::marker { color: #64748b; font-weight: 600; }
 .qa-a-body h1, .qa-a-body h2, .qa-a-body h3 { font-weight: 700; color: #1e293b; margin: 24px 0 10px; line-height: 1.3; }
 .qa-a-body h1 { font-size: 20px; }
-/* Replicating the nice header style natively via h2 */
 .qa-a-body h2 { font-size: 17px; color: #4f46e5; border-bottom: 1.5px solid #e0e7ff; padding-bottom: 6px; margin-top: 28px; }
 .qa-a-body h3 { font-size: 15px; color: #374151; }
 .qa-a-body code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; padding: 2px 6px; color: #be185d; }
@@ -256,11 +251,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-body blockquote { border-left: 4px solid #818cf8; background: #f8f7ff; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; color: #4338ca; font-style: italic; }
 .qa-a-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 24px 0; }
 
-/* Retry countdown */
-.retry-wrap{padding:4px 0}
-.retry-msg{display:flex;align-items:center;gap:8px;font-size:13px;color:#d97706;margin-bottom:8px;font-weight:500}
-.r-bar{flex:1;height:4px;background:#fde68a;border-radius:2px;overflow:hidden}
-.r-fill{height:100%;background:#d97706;transition:width 1s linear}
+/* Clean Retry Text UI (Updated) */
+.retry-wrap{
+  color: #d97706; 
+  font-size: 14px; 
+  font-weight: 500;
+  padding: 8px 0;
+  display:flex; 
+  align-items:center;
+}
 
 /* Loader */
 .loader{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:13px;padding:4px 0}
@@ -333,7 +332,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 }
 @keyframes rs{from{transform:scale(1)}to{transform:scale(1.07)}}
 .rec-title{color:#fff;font-size:16px;font-weight:600}
-.rec-hint{color:rgba(255,255,255,.5);font-size:12px}
+.rec-hint{color:rgba(255,255,255,.9);font-size:14px;font-weight:500;background:rgba(255,255,255,0.1);padding:6px 14px;border-radius:20px;}
 .rec-text{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
   border-radius:10px;padding:12px 18px;max-width:460px;width:90vw;
@@ -356,9 +355,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div class="brand-icon">🎯</div>
       <h1>InterviewAI</h1>
     </div>
-    <p class="brand-sub">Right-click → speak → structured expert answer</p>
+    <p class="brand-sub">Right-click to start → speak → Right-click to send</p>
 
-    <div class="s-label">Choose AI Model</div>
+    <div class="s-label">Choose Intelligence Provider</div>
     <div class="ai-row">
       <div class="ai-opt sel-gemini" data-ai="gemini" onclick="pickAI('gemini')">
         <div class="ai-av av-g">G</div>
@@ -375,6 +374,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         <div class="ai-nm">ChatGPT</div>
         <div class="ai-by">OpenAI</div>
       </div>
+      <div class="ai-opt" data-ai="serper" onclick="pickAI('serper')">
+        <div class="ai-av av-s">S</div>
+        <div class="ai-nm">Web Search</div>
+        <div class="ai-by">Serper.dev</div>
+      </div>
     </div>
 
     <div class="s-label" id="klabel">Gemini API Key</div>
@@ -384,25 +388,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     </div>
     <div class="err" id="kerr"></div>
     <div class="hint" id="khint">
-      Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong> — 10 req/min. 
-      Get key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+      Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong>. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
     </div>
 
     <div class="notice" id="rnotice">
-      ⚡ <strong>Auto-retry enabled:</strong> If rate-limited, the app waits and retries automatically with a live countdown — no action needed from you.
+      ⚡ <strong>Auto-retry enabled:</strong> If rate-limited, the app waits and retries automatically.
     </div>
 
     <div class="mic-box">
       <div class="mic-box-icon">🎤</div>
       <div>
         <div class="mic-box-title">Allow Microphone — One Time Only</div>
-        <div class="mic-box-desc">Click once now. Chrome remembers it — no more popups during your interview.</div>
+        <div class="mic-box-desc">Click once now. Chrome remembers it — no more popups.</div>
         <button class="mic-btn" id="mbtn" onclick="grantMic()">Allow Microphone</button>
         <div class="mic-st" id="mst"></div>
       </div>
     </div>
 
-    <button class="go-btn" onclick="launch()">Start Interview Assistant →</button>
+    <button class="go-btn" onclick="launch()">Start Assistant →</button>
   </div>
 </div>
 
@@ -417,7 +420,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 5px #22c55e"></span>
         Mic ready
       </div>
-      <div class="tag tag-hint">🖱 Right-click to speak</div>
+      <div class="tag tag-hint">🖱 Right-click to toggle mic</div>
       <div class="tag tag-ai">
         <span class="tag-dot td-g" id="bdot"></span>
         <span id="btxt">Gemini</span>
@@ -429,35 +432,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   <div class="feed" id="feed">
     <div class="empty" id="empty">
       <div class="e-icon">🎤</div>
-      <div class="e-title">Ready for Your Interview</div>
-      <div class="e-sub">Right-click anywhere — your microphone starts instantly. Ask any interview question and get a clean, structured answer.</div>
+      <div class="e-title">Ready to Assist</div>
+      <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
       <div class="e-tips">
-        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click = instant mic</div><div class="et-d">No menu — recording starts immediately</div></div>
-        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Speak naturally</div><div class="et-d">Ask any interview question</div></div>
-        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read</div></div>
-        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically</div></div>
+        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
+        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
+        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read.</div></div>
+        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically.</div></div>
       </div>
     </div>
   </div>
 
   <div class="bot">
     <div class="bot-l"><div class="bot-led"></div><span id="stxt">Ready — right-click anywhere to start</span></div>
-    <button class="clr-btn" onclick="clearFeed()">🗑 Clear history</button>
+    <button class="clr-btn" onclick="clearFeed()">🗑 Clear interface</button>
   </div>
 </div>
 
 <div id="rec">
   <div class="rec-ring"><div class="rec-core">🎤</div></div>
   <div class="rec-title">Listening…</div>
-  <div class="rec-hint">Speak your question clearly, then pause</div>
+  <div class="rec-hint">🖱 Right-click again to send</div>
   <div class="rec-text" id="rtxt">Waiting for speech…</div>
-  <button class="rec-stop" onclick="stopRec()">Stop / Cancel &nbsp;(Esc)</button>
+  <button class="rec-stop" onclick="cancelRec()">Cancel (Esc)</button>
 </div>
 
 <script>
 /* ── state ── */
-const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo',claude:'',openai:''};
+const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo', claude:'', openai:'', serper:''};
 let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
+let finalTranscript = '';
 
 /* ── AI Prompt generator ── */
 function getPrompt(question) {
@@ -488,13 +492,16 @@ function pickAI(v){
   ai=v;
   document.querySelectorAll('.ai-opt').forEach(c=>c.className='ai-opt');
   document.querySelector(`[data-ai="${v}"]`).classList.add('ai-opt','sel-'+v);
-  const L={gemini:'Gemini API Key',claude:'Anthropic API Key',openai:'OpenAI API Key'};
-  const P={gemini:'AIzaSy…',claude:'sk-ant-…',openai:'sk-proj-…'};
+  
+  const L={gemini:'Gemini API Key', claude:'Anthropic API Key', openai:'OpenAI API Key', serper:'Serper.dev API Key'};
+  const P={gemini:'AIzaSy…', claude:'sk-ant-…', openai:'sk-proj-…', serper:'YOUR_KEY'};
   const H={
-    gemini:'Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong> — 10 req/min. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
+    gemini:'Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong>. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
     claude:'Key → <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
-    openai:'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>'
+    openai:'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>',
+    serper:'Free Search API Key → <a href="https://serper.dev" target="_blank">serper.dev</a>'
   };
+  
   document.getElementById('klabel').textContent=L[v];
   document.getElementById('kval').placeholder=P[v];
   document.getElementById('kval').value=keys[v];
@@ -509,7 +516,7 @@ async function grantMic(){
   b.textContent='Requesting…';b.disabled=true;
   try{
     micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    s.textContent='✓ Microphone granted — no more popups!';s.className='mic-st ok';b.style.display='none';
+    s.textContent='✓ Microphone granted!';s.className='mic-st ok';b.style.display='none';
   }catch{
     s.textContent='✗ Denied — allow mic in Chrome settings';s.className='mic-st no';
     b.textContent='Try Again';b.disabled=false;
@@ -527,8 +534,8 @@ function launch(){
 }
 
 function syncBadge(){
-  const N={gemini:'Gemini',claude:'Claude',openai:'ChatGPT'};
-  const C={gemini:'td-g',claude:'td-c',openai:'td-o'};
+  const N={gemini:'Gemini', claude:'Claude', openai:'ChatGPT', serper:'Google Search'};
+  const C={gemini:'td-g', claude:'td-c', openai:'td-o', serper:'td-s'};
   document.getElementById('btxt').textContent=N[ai];
   document.getElementById('bdot').className='tag-dot '+C[ai];
 }
@@ -539,15 +546,27 @@ function goSet(){
   document.getElementById('kval').value=keys[ai];
 }
 
-/* ── right-click = instant record ── */
-document.addEventListener('contextmenu',e=>{
-  if(document.getElementById('app').style.display==='flex'){
+/* ── Toggle Record Interaction ── */
+document.addEventListener('contextmenu', e => {
+  if (document.getElementById('app').style.display === 'flex') {
     e.preventDefault();
-    if(!isRec && !isBusy) startRec();
-    else if(isBusy) showBusyFlash();
+    if (isBusy) {
+      showBusyFlash();
+      return;
+    }
+    
+    // Toggle functionality
+    if (!isRec) {
+      startRec();
+    } else {
+      // If already recording, stop and submit
+      if(recog) { 
+        try { recog.stop(); } catch{} 
+      }
+    }
   }
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')stopRec()});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') cancelRec() });
 
 function startRec(){
   if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
@@ -555,42 +574,55 @@ function startRec(){
   }
   document.getElementById('rec').classList.add('on');
   document.getElementById('rtxt').textContent='Waiting for speech…';
-  document.getElementById('stxt').textContent='🎤 Recording — speak now…';
+  document.getElementById('stxt').textContent='🎤 Recording — right-click again to send';
   isRec=true;
+  finalTranscript = ''; // Reset accumulation string
 
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recog=new SR();recog.continuous=false;recog.interimResults=true;recog.lang='en-US';
+  recog=new SR();
+  
+  // Continuous = true so it keeps listening through pauses
+  recog.continuous=true; 
+  recog.interimResults=true;
+  recog.lang='en-US';
 
   recog.onresult=e=>{
-    let f='',t='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)f+=e.results[i][0].transcript;
-      else t+=e.results[i][0].transcript;
+    let interim = '';
+    for(let i=e.resultIndex; i<e.results.length; i++){
+      if(e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
     }
-    document.getElementById('rtxt').textContent=f||t||'Listening…';
+    const displayTxt = (finalTranscript + interim).trim();
+    document.getElementById('rtxt').textContent = displayTxt || 'Listening…';
   };
 
   recog.onend=()=>{
-    const q=document.getElementById('rtxt').textContent.trim();
+    // When stopped manually via toggle, process the question
     document.getElementById('rec').classList.remove('on');
     isRec=false;
-    if(q&&q!=='Waiting for speech…'&&q!=='Listening…') answerQ(q);
+    const q = document.getElementById('rtxt').textContent.trim();
+    if(q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
     else setSt('Ready — right-click anywhere to start');
   };
 
   recog.onerror=err=>{
     document.getElementById('rec').classList.remove('on');isRec=false;
-    const m={'not-allowed':'Mic blocked — grant permission on setup screen','no-speech':'No speech detected — try again'};
+    const m={'not-allowed':'Mic blocked','no-speech':'No speech detected'};
     setSt('⚠ '+(m[err.error]||err.error));
     setTimeout(()=>setSt('Ready — right-click anywhere to start'),4000);
   };
   recog.start();
 }
 
-function stopRec(){
-  if(recog){try{recog.stop()}catch{}recog=null}
+function cancelRec(){
+  if(recog) {
+    recog.onend = null; // Prevent submission
+    try { recog.stop(); } catch{} 
+    recog = null;
+  }
   document.getElementById('rec').classList.remove('on');
-  isRec=false;setSt('Ready — right-click anywhere to start');
+  isRec=false;
+  setSt('Ready — right-click anywhere to start');
 }
 
 /* ── answer pipeline ── */
@@ -601,13 +633,14 @@ async function answerQ(question){
   const empty=document.getElementById('empty');
   if(empty)empty.style.display='none';
 
+  // Clear previous cards to only show the latest centered
   document.querySelectorAll('.qa').forEach(el => el.remove());
 
-  setSt('⏳ Generating answer…');
+  setSt('⏳ Fetching data…');
   syncHint(true);
 
-  const BADGE={gemini:'b-g',claude:'b-c',openai:'b-o'};
-  const NAMES={gemini:'Gemini',claude:'Claude',openai:'ChatGPT'};
+  const BADGE={gemini:'b-g', claude:'b-c', openai:'b-o', serper:'b-s'};
+  const NAMES={gemini:'Gemini', claude:'Claude', openai:'ChatGPT', serper:'Serper (Web Search)'};
   const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
   const card=document.createElement('div');
@@ -624,7 +657,7 @@ async function answerQ(question){
       </div>
       <div id="body-${id}" class="loader">
         <div class="dots"><span></span><span></span><span></span></div>
-        Generating answer…
+        ${ai === 'serper' ? 'Searching the web...' : 'Generating answer...'}
       </div>
     </div>`;
 
@@ -635,8 +668,10 @@ async function answerQ(question){
     let text='';
     if(ai==='claude') await doClaude(question,id);
     else if(ai==='openai'){text=await doOpenAI(question);renderText(id,text,card);}
+    else if(ai==='serper'){text=await doSerper(question);renderText(id,text,card);}
     else{text=await doGemini(question,id);renderText(id,text,card);}
-    setSt(`✓ Question answered — right-click to ask another`);
+    
+    setSt(`✓ Request complete — right-click to ask another`);
     isBusy=false; syncHint(false);
   }catch(e){
     document.getElementById('body-'+id).outerHTML=`
@@ -666,13 +701,52 @@ function renderText(id, text, card) {
     }
     i += CHUNK;
     const partial = text.slice(0, i);
-    // Render markdown securely via external marked.js logic
     div.innerHTML = marked.parse(partial) + '<span class="cur"></span>';
     scrollBottom();
   }, 15);
 }
 
-/* ── Gemini 2.5-flash with smart retry ── */
+/* ── NEW: Serper Google Search Integration ── */
+async function doSerper(question) {
+  const res = await fetch('https://google.serper.dev/search', {
+    method: 'POST',
+    headers: {
+      'X-API-KEY': keys.serper,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ q: question })
+  });
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e?.message || `Serper API Error ${res.status}`);
+  }
+
+  const data = await res.json();
+  let md = ``;
+
+  if (data.answerBox && (data.answerBox.snippet || data.answerBox.answer)) {
+    md += `## 1. Quick Answer\n${data.answerBox.snippet || data.answerBox.answer}\n\n`;
+  } else if (data.knowledgeGraph && data.knowledgeGraph.description) {
+    md += `## 1. Quick Answer (${data.knowledgeGraph.title})\n${data.knowledgeGraph.description}\n\n`;
+  } else {
+    md += `## 1. Search Overview\nHere are the top organic results for your query.\n\n`;
+  }
+
+  md += `## 2. Top Results\n`;
+  if (data.organic && data.organic.length > 0) {
+    data.organic.slice(0, 4).forEach(item => {
+      md += `* **${item.title}**\n  ${item.snippet}\n`;
+    });
+  } else {
+    md += `* No organic web results found.\n`;
+  }
+
+  md += `\n## 3. Source\nResults powered by Google Search via Serper.dev`;
+  return md;
+}
+
+/* ── Gemini 2.5-flash with clean retry ── */
 async function doGemini(question,cid){
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
@@ -713,27 +787,26 @@ async function doGemini(question,cid){
     const data=await res.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
   }
-  throw new Error('Failed after 5 attempts — please wait 1 minute and try again.');
+  throw new Error('Failed after 5 attempts.');
 }
 
+// Updated clean retry text
 function countdown(cid,secs,attempt){
   return new Promise(resolve=>{
     const body=document.getElementById('body-'+cid);
     if(!body){setTimeout(resolve,secs*1000);return}
     let rem=secs;
+    
+    // Clean text indicator matching the screenshot
     body.innerHTML=`
       <div class="retry-wrap">
-        <div class="retry-msg">
-          ⏳ Rate limited — retrying in <strong id="cd-${cid}">&nbsp;${rem}s&nbsp;</strong> (attempt ${attempt}/5)
-          <div class="r-bar"><div class="r-fill" id="rf-${cid}" style="width:100%"></div></div>
-        </div>
+        ⏳ Rate limited — retrying in &nbsp;<strong id="cd-${cid}">${rem}s</strong>&nbsp; (attempt ${attempt}/5)
       </div>`;
+      
     const t=setInterval(()=>{
       rem--;
       const cd=document.getElementById(`cd-${cid}`);
-      const rf=document.getElementById(`rf-${cid}`);
-      if(cd)cd.textContent=` ${rem}s `;
-      if(rf)rf.style.width=((rem/secs)*100)+'%';
+      if(cd)cd.textContent=`${rem}s`;
       if(rem<=0){clearInterval(t);resolve()}
     },1000);
   });
@@ -806,7 +879,7 @@ function showBusyFlash(){
   const f=document.createElement('div');
   f.id='busy-flash';
   f.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#fef3c7;border:1.5px solid #fcd34d;color:#92400e;font-size:13px;font-weight:600;padding:10px 20px;border-radius:30px;box-shadow:0 4px 14px rgba(0,0,0,.12);z-index:500;transition:opacity .4s;pointer-events:none;';
-  f.textContent='⏳ Please wait — answer is generating…';
+  f.textContent='⏳ Please wait — processing data…';
   document.body.appendChild(f);
   setTimeout(()=>f.style.opacity='0',2000);
   setTimeout(()=>f.remove(),2500);
@@ -815,8 +888,8 @@ function showBusyFlash(){
 function syncHint(busy){
   const h=document.querySelector('.tag-hint');
   if(!h)return;
-  if(busy){h.style.background='#fef3c7';h.style.borderColor='#fcd34d';h.style.color='#92400e';h.textContent='⏳ Answering…';}
-  else{h.style.background='';h.style.borderColor='';h.style.color='';h.textContent='🖱 Right-click to speak';}
+  if(busy){h.style.background='#fef3c7';h.style.borderColor='#fcd34d';h.style.color='#92400e';h.textContent='⏳ Fetching…';}
+  else{h.style.background='';h.style.borderColor='';h.style.color='';h.textContent='🖱 Right-click to toggle mic';}
 }
 
 function scrollBottom(){
@@ -830,13 +903,13 @@ function clearFeed(){
   document.getElementById('feed').innerHTML=`
     <div class="empty" id="empty">
       <div class="e-icon">🎤</div>
-      <div class="e-title">Ready for Your Interview</div>
-      <div class="e-sub">Right-click anywhere — your microphone starts instantly.</div>
+      <div class="e-title">Ready to Assist</div>
+      <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
       <div class="e-tips">
-        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click = instant mic</div><div class="et-d">No menu — recording starts immediately</div></div>
-        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Speak naturally</div><div class="et-d">Any interview question</div></div>
-        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read</div></div>
-        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically</div></div>
+        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
+        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
+        <div class="e-tip"><div class="et-i">📖</div><div class="et-t">Clean formatted answer</div><div class="et-d">Bold, bullets, sections — easy to read.</div></div>
+        <div class="e-tip"><div class="et-i">🔁</div><div class="et-t">Auto-retry on limits</div><div class="et-d">Rate limits handled automatically.</div></div>
       </div>
     </div>`;
   setSt('Ready — right-click anywhere to start');
