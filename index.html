@@ -50,7 +50,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 .s-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
 
-/* Grid updated to 2 columns to fit 4 options neatly */
 .ai-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
 .ai-opt{
   border:2px solid #e2e8f0;border-radius:10px;padding:14px 10px;
@@ -226,7 +225,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .b-s{background:#e0e7ff;color:#3730a3} 
 .qa-a-time{font-size:11px;color:#94a3b8;margin-left:auto}
 
-/* Answer body — standard markdown formatting */
+/* Answer body */
 .qa-a-body { font-size: 14.5px; line-height: 1.7; color: #334155; }
 .qa-a-body p { margin-bottom: 14px; }
 .qa-a-body p:last-child { margin-bottom: 0; }
@@ -528,19 +527,16 @@ function goSet(){
   document.getElementById('kval').value=keys[ai];
 }
 
-/* ── Toggle Record Interaction & Instant Interrupt ── */
+/* ── Toggle Record Interaction & Instant Submits ── */
 document.addEventListener('contextmenu', e => {
   if (document.getElementById('app').style.display === 'flex') {
     e.preventDefault();
     
-    // Toggle functionality
+    // 100% reliable toggle functionality
     if (!isRec) {
       startRec();
     } else {
-      // If already recording, stop and submit
-      if(recog) { 
-        try { recog.stop(); } catch{} 
-      }
+      forceProcessTranscript(); // Instantly grab text and submit
     }
   }
 });
@@ -556,7 +552,7 @@ function startRec(){
     activeController.abort();
   }
   activeController = new AbortController();
-  isBusy = false; // Reset busy flag instantly
+  isBusy = false; 
 
   document.getElementById('rec').classList.add('on');
   document.getElementById('rtxt').textContent='Waiting for speech…';
@@ -581,18 +577,10 @@ function startRec(){
     document.getElementById('rtxt').textContent = displayTxt || 'Listening…';
   };
 
+  // Natively fires if the user stops talking for ~15 seconds and Chrome auto-closes it
   recog.onend=()=>{
-    document.getElementById('rec').classList.remove('on');
-    isRec=false;
-    
-    let q = document.getElementById('rtxt').textContent.trim();
-    
-    // Auto-Correct: Fix common speech recognition errors for SAP CPI
-    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI');
-    q = q.replace(/\bCPA\b/gi, 'CPI');
-    
-    if(q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
-    else setSt('Ready — right-click anywhere to start');
+    if (!isRec) return; // Prevent double firing if we manually submitted
+    forceProcessTranscript();
   };
 
   recog.onerror=err=>{
@@ -604,10 +592,43 @@ function startRec(){
   recog.start();
 }
 
+// Forces immediate submission without waiting for Chrome's buggy recog.stop() finalization
+function forceProcessTranscript() {
+    if (!isRec) return;
+
+    // Grab the exact text visible on screen right now
+    let q = document.getElementById('rtxt').textContent.trim();
+
+    // Kill the recognition hardware connection instantly
+    if (recog) {
+        recog.onend = null; 
+        recog.onerror = null;
+        try { recog.abort(); } catch(e){} 
+    }
+
+    document.getElementById('rec').classList.remove('on');
+    isRec = false;
+
+    // Auto-Correct: Fix common speech recognition errors for SAP CPI
+    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI');
+    q = q.replace(/\bCPA\b/gi, 'CPI');
+    q = q.replace(/\bcontent in rich\b/gi, 'content enrich');
+    q = q.replace(/\bcontent modified\b/gi, 'content modifier');
+
+    if (q && q !== 'Waiting for speech…' && q !== 'Listening…') {
+        answerQ(q);
+    } else {
+        setSt('Ready — right-click anywhere to start');
+    }
+}
+
+// Cancels completely without asking AI
 function cancelRec(){
+  if (!isRec) return;
   if(recog) {
-    recog.onend = null; // Prevent submission
-    try { recog.stop(); } catch{} 
+    recog.onend = null; 
+    recog.onerror = null;
+    try { recog.abort(); } catch{} 
     recog = null;
   }
   document.getElementById('rec').classList.remove('on');
@@ -666,7 +687,7 @@ async function answerQ(question){
   }catch(e){
     if (e.name === 'AbortError') {
       console.log('Request cancelled by user');
-      return; // Do nothing if we manually aborted
+      return; 
     }
     document.getElementById('body-'+id).outerHTML=`
       <div class="qa-err">⚠️ <span>${esc(e.message||'API error — check your key')}</span></div>`;
@@ -687,7 +708,7 @@ function renderText(id, text, card) {
 
   const CHUNK = 8;
   const iv = setInterval(() => {
-    // If the controller was aborted while typing, stop typing
+    // Stop typing immediately if user starts a new question
     if (activeController && activeController.signal.aborted) {
       clearInterval(iv);
       return; 
@@ -747,7 +768,7 @@ async function doSerper(question, signal) {
   return md;
 }
 
-/* Updated Gemini: Removed the retry loop. Fails immediately on 429 so you don't wait. */
+/* No retry loop - fails fast so you aren't waiting for a blocked request */
 async function doGemini(question, cid, signal){
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
