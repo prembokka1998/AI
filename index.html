@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InterviewAI</title>
+<title>InterviewAI - SAP CPI</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
@@ -11,19 +11,12 @@
 :root{
   --bg:#f0f4f8;
   --surface:#ffffff;
-  --surface2:#f7f9fc;
   --border:#e2e8f0;
-  --border2:#cbd5e1;
   --text:#1e293b;
-  --text2:#64748b;
-  --text3:#94a3b8;
-  --accent:#4f46e5;
-  --accent-light:#ede9fe;
   --font:'Inter',sans-serif;
   --mono:'JetBrains Mono',monospace;
-  --r:10px; --r-sm:6px; --r-lg:16px;
+  --r-lg:16px;
   --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
-  --shadow-md:0 4px 12px rgba(0,0,0,.1);
   --shadow-lg:0 10px 40px rgba(0,0,0,.12);
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -50,6 +43,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 .s-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
 
+/* Grid updated to 2 columns to fit 4 options neatly */
 .ai-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
 .ai-opt{
   border:2px solid #e2e8f0;border-radius:10px;padding:14px 10px;
@@ -441,7 +435,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 const keys={gemini:'AIzaSyD6Guhk0m8Q9qvvMpWaNYP5ACQx16p9DIo', claude:'', openai:'', serper:''};
 let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
 let finalTranscript = '';
-let activeController = null; // Used to instantly abort ongoing API requests
+let activeController = null; 
 
 /* ── AI Prompt generator with SAP CPI explicit context ── */
 function getPrompt(question) {
@@ -547,7 +541,6 @@ function startRec(){
     alert('Please use Google Chrome or Edge for voice input.');return;
   }
   
-  // IMMEDIATELY abort any ongoing API fetching or typing effects
   if (activeController) {
     activeController.abort();
   }
@@ -768,7 +761,7 @@ async function doSerper(question, signal) {
   return md;
 }
 
-/* No retry loop - fails fast so you aren't waiting for a blocked request */
+/* ── NO RETRY LOOP - Fails instantly on 429 Error ── */
 async function doGemini(question, cid, signal){
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
