@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InterviewAI - Multi-Model UI</title>
+<title>InterviewAI - High Performance Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
@@ -11,11 +11,10 @@
 :root{
   --bg:#f0f4f8; --surface:#ffffff; --border:#e2e8f0; --text:#1e293b;
   --r-lg:16px; --shadow-lg:0 10px 40px rgba(0,0,0,.12);
-  /* Default Theme Colors */
   --accent: #4f46e5; --accent-bg: #ede9fe;
 }
 
-/* Model Specific Themes */
+/* Model Specific Dynamic Themes */
 body.theme-gemini { --accent: #4285f4; --accent-bg: #dbeafe; }
 body.theme-openai { --accent: #10a37f; --accent-bg: #d1fae5; }
 body.theme-claude { --accent: #d97706; --accent-bg: #fef3c7; }
@@ -28,9 +27,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .card{background:#fff;border-radius:20px;padding:40px;width:520px;box-shadow:0 20px 60px rgba(0,0,0,.25);}
 .ai-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
 .ai-opt{border:2px solid #e2e8f0;border-radius:10px;padding:12px;cursor:pointer;text-align:center;font-weight:600;transition: all 0.2s;}
-.ai-opt.selected{border-color:#4f46e5;background:#ede9fe;}
-input{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:20px;outline:none;}
+.ai-opt.selected{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);}
+input{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:20px;outline:none;font-family:monospace;}
 .go-btn{width:100%;background:#4f46e5;border:none;border-radius:10px;color:#fff;padding:15px;font-weight:700;cursor:pointer;}
+.mic-grant-btn { background: #10b981; margin-bottom: 10px; width: 100%; color: white; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;}
 
 /* ═══════════════ MAIN APP ═══════════════ */
 #app{display:none;height:100vh;flex-direction:column;}
@@ -39,27 +39,31 @@ input{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;margi
 .feed::-webkit-scrollbar{width:6px}
 .feed::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
 
-/* Dynamic Response Card */
-.qa{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);width:100%;max-width:950px;margin:0 auto 40px auto;animation:pop .25s ease;flex-shrink:0;}
+/* Optimized QA Card */
+.qa{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);width:100%;max-width:950px;margin:0 auto 40px auto;animation:pop .2s ease-out;flex-shrink:0;}
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-.qa-q{padding:18px 25px;background:#f8fafc;border-bottom:1.5px solid var(--border);font-weight:700;font-size:16px;}
+.qa-q{padding:18px 25px;background:#f8fafc;border-bottom:1px solid var(--border);font-weight:700;font-size:16px;}
 .qa-a{padding:25px 30px}
-.qa-a-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.qa-a-badge{background:var(--accent-bg);color:var(--accent);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;text-transform:uppercase;border:1px solid var(--accent);}
+.qa-a-badge{display:inline-block;background:var(--accent-bg);color:var(--accent);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:15px;border:1px solid var(--accent);}
 
-.qa-a-body{font-size:16.5px;line-height:1.8;color:#1e293b;}
-.qa-a-body h1, .qa-a-body h2 {margin:25px 0 15px;padding-bottom:8px;border-bottom:1.2px solid var(--accent-bg);color:var(--accent);}
+.qa-a-body{font-size:16px;line-height:1.8;color:#1e293b;}
+.qa-a-body h1, .qa-a-body h2 {margin:25px 0 15px;padding-bottom:8px;border-bottom:1.5px solid var(--accent-bg);color:var(--accent);}
 .qa-a-body strong {color: var(--accent); font-weight: 700;}
+.qa-a-body a {color:var(--accent); text-decoration: underline;}
 
 .bot{padding:12px 20px;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px;color:#64748b;}
-#rec{position:fixed;inset:0;background:rgba(15,23,42,0.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;color:#fff;}
-#rec.on{display:flex}
-.rec-text {margin-top:20px;font-family:monospace;max-width:80%;text-align:center;font-size:18px;color:#cbd5e1;}
 
-.stealth-dot {display:none;position:fixed;top:5px;right:5px;width:6px;height:6px;background:red;border-radius:50%;z-index:9999;}
+/* High Performance Voice Overlay */
+#rec{position:fixed;inset:0;background:rgba(15,23,42,0.96);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;color:#fff;}
+#rec.on{display:flex}
+.rec-text {margin-top:20px;font-family:'JetBrains Mono',monospace;max-width:80%;text-align:center;font-size:18px;color:#cbd5e1;}
+
+/* Stealth Indicator */
+.stealth-dot {display:none;position:fixed;top:5px;right:5px;width:5px;height:5px;background:red;border-radius:50%;z-index:9999;}
 body.stealth-mode .bar, body.stealth-mode .bot {display:none !important;}
 body.stealth-mode.is-recording .stealth-dot {display:block;}
+body.stealth-mode .qa {box-shadow:none;border-color:transparent;max-width:100%;}
 </style>
 </head>
 <body class="theme-gemini">
@@ -68,33 +72,42 @@ body.stealth-mode.is-recording .stealth-dot {display:block;}
 <div id="setup">
   <div class="card">
     <h2 style="margin-bottom:10px;">InterviewAI Pro</h2>
+    <p style="color:#64748b;font-size:14px;margin-bottom:20px;">Optimized Performance & Multi-Model Support.</p>
     <div class="ai-row">
       <div id="opt-gemini" class="ai-opt selected" onclick="setAI('gemini')">Gemini</div>
       <div id="opt-openai" class="ai-opt" onclick="setAI('openai')">ChatGPT</div>
       <div id="opt-claude" class="ai-opt" onclick="setAI('claude')">Claude</div>
-      <div id="opt-serper" class="ai-opt" onclick="setAI('serper')">Google Search</div>
+      <div id="opt-serper" class="ai-opt" onclick="setAI('serper')">Search</div>
     </div>
-    <input type="password" id="key-input" placeholder="Enter API Key">
-    <button class="go-btn" onclick="startApp()">Start Dynamic Assistant →</button>
+    <input type="password" id="key-input" placeholder="Paste API Key here">
+    <button class="mic-grant-btn" onclick="requestMic()">1. Test Microphone</button>
+    <button class="go-btn" id="start-btn" onclick="startApp()" disabled style="opacity:0.5">2. Launch Assistant</button>
+    <p id="mic-msg" style="text-align:center;font-size:11px;margin-top:10px;color:#ef4444;">Microphone check required</p>
   </div>
 </div>
 
 <div id="app">
-  <div class="bar"><div>InterviewAI</div><div>[Alt+S] Stealth | Right-Click to Talk</div></div>
+  <div class="bar"><div>InterviewAI</div><div>[Alt+S] Stealth | Right-Click Voice</div></div>
   <div class="feed" id="feed">
-    <div id="empty-state" style="text-align:center;margin-top:15vh;color:#94a3b8;"><h2>Ready</h2><p>Right-click to talk, right-click to send.</p></div>
+    <div id="empty-state" style="text-align:center;margin-top:15vh;color:#94a3b8;">
+        <h2>Ready for Input</h2>
+        <p>Right-click to start, right-click to finish. Alt+S for Stealth.</p>
+    </div>
   </div>
-  <div class="bot"><div id="status">Status: Ready</div><button onclick="document.querySelectorAll('.qa').forEach(e=>e.remove());document.getElementById('empty-state').style.display='block';">🗑 Clear</button></div>
+  <div class="bot"><div>Status: Optimized</div><button onclick="clearUI()">🗑 Clear Screen</button></div>
 </div>
 
 <div id="rec">
     <h2>Listening...</h2>
     <div id="live-text" class="rec-text">...</div>
+    <p style="margin-top:20px; font-size:12px; color:#64748b;">Right-click again to stop</p>
 </div>
 
 <script>
-let currentAI = 'gemini', isRecording = false, config = { key: '' }, activeController = null;
+let currentAI = 'gemini', recognition = null, isRecording = false, activeCtrl = null;
+let config = { key: '' };
 
+// Theme and AI selection logic
 function setAI(val) {
     currentAI = val;
     document.querySelectorAll('.ai-opt').forEach(e => e.classList.remove('selected'));
@@ -102,59 +115,89 @@ function setAI(val) {
     document.body.className = 'theme-' + val;
 }
 
+// Ensure mic works before starting
+async function requestMic() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+        document.getElementById('mic-msg').textContent = "✓ Mic Ready";
+        document.getElementById('mic-msg').style.color = "#10b981";
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').style.opacity = "1";
+    } catch (e) { alert("Microphone access denied. Please allow mic in browser settings."); }
+}
+
 function startApp() {
     config.key = document.getElementById('key-input').value.trim();
+    if(!config.key) return alert("Please enter an API key.");
     document.getElementById('setup').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
 }
 
-function getPrompt(question) {
-    return `Provide a comprehensive, high-level technical response regarding SAP Cloud Platform Integration (SAP CPI). Focus on exhaustive details and professional formatting. Question: "${question}"`;
-}
-
+// Optimized Interaction Handlers
 document.addEventListener('contextmenu', e => {
     if (document.getElementById('app').style.display === 'flex') {
         e.preventDefault();
-        if (!isRecording) startRecording(); else stopRecording();
+        if (!isRecording) startRecording(); else stopAndProcess();
     }
 });
 
-document.addEventListener('keydown', e => { if (e.altKey && e.key.toLowerCase() === 's') document.body.classList.toggle('stealth-mode'); });
+document.addEventListener('keydown', e => { 
+    if (e.altKey && e.key.toLowerCase() === 's') document.body.classList.toggle('stealth-mode');
+});
 
 function startRecording() {
     const SDK = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SDK) return;
-    if (activeController) activeController.abort();
-    activeController = new AbortController();
-    recognition = new SDK(); recognition.continuous = true; recognition.interimResults = true;
-    document.getElementById('rec').classList.add('on'); document.body.classList.add('is-recording');
+    if (activeCtrl) activeCtrl.abort();
+    activeCtrl = new AbortController();
+    
+    recognition = new SDK();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    document.getElementById('rec').classList.add('on');
+    document.body.classList.add('is-recording');
     isRecording = true;
+
     recognition.onresult = e => {
-        let text = ''; for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+        let text = '';
+        for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
         document.getElementById('live-text').textContent = text;
     };
     recognition.start();
 }
 
-function stopRecording() {
+function stopAndProcess() {
     let q = document.getElementById('live-text').textContent.trim();
-    if (recognition) recognition.abort();
-    document.getElementById('rec').classList.remove('on'); document.body.classList.remove('is-recording');
+    if (recognition) { recognition.onresult = null; recognition.abort(); }
+    document.getElementById('rec').classList.remove('on');
+    document.body.classList.remove('is-recording');
     isRecording = false;
-    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI').replace(/\bHenry\b/gi, 'Enrich').replace(/\bcontent in rich\b/gi, 'content enrich');
-    if (q && q !== '...') handleQuery(q);
+
+    // Fast Auto-Correction Engine
+    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI')
+         .replace(/\bHenry\b/gi, 'Enrich')
+         .replace(/\bhenry\b/gi, 'enrich')
+         .replace(/\bcontent in rich\b/gi, 'content enrich');
+
+    if (q && q !== '...') runQuery(q);
 }
 
-async function handleQuery(q) {
+// Performance Optimized Query Runner
+async function runQuery(q) {
     document.getElementById('empty-state').style.display = 'none';
-    document.querySelectorAll('.qa').forEach(e => e.remove());
-    const card = document.createElement('div'); card.className = 'qa';
-    const badgeName = currentAI === 'openai' ? 'ChatGPT' : currentAI.charAt(0).toUpperCase() + currentAI.slice(1);
+    document.querySelectorAll('.qa').forEach(e => e.remove()); // Keep UI clean
+    
+    const card = document.createElement('div');
+    card.className = 'qa';
+    const badge = currentAI === 'openai' ? 'ChatGPT' : currentAI.charAt(0).toUpperCase() + currentAI.slice(1);
     
     card.innerHTML = `<div class="qa-q">${q}</div>
     <div class="qa-a">
-        <div class="qa-a-meta"><div class="qa-a-badge">${badgeName}</div></div>
-        <div class="qa-a-body" id="cur-ans">Fetching response in ${badgeName} style...</div>
+        <div class="qa-a-badge">${badge}</div>
+        <div class="qa-a-body" id="target-ans">Optimizing performance and fetching...</div>
     </div>`;
     document.getElementById('feed').appendChild(card);
     
@@ -165,51 +208,65 @@ async function handleQuery(q) {
         else if (currentAI === 'claude') text = await callClaude(q);
         else text = await callSerper(q);
 
-        document.getElementById('cur-ans').innerHTML = marked.parse(text); 
+        // Immediate Rendering (No artificial typing delay)
+        document.getElementById('target-ans').innerHTML = marked.parse(text); 
         document.getElementById('feed').scrollTop = 0;
-    } catch (err) { document.getElementById('cur-ans').innerHTML = `<b style="color:red">Error:</b> ${err.message}`; }
+    } catch (err) { 
+        if(err.name !== 'AbortError') 
+            document.getElementById('target-ans').innerHTML = `<b style="color:red">Error:</b> ${err.message}`; 
+    }
 }
 
-async function callGemini(query) {
+// AI API Definitions
+async function callGemini(q) {
+    const prompt = `Answer about SAP Cloud Platform Integration (SAP CPI) exactly as a high-level technical assistant would. Provide an exhaustive, naturally formatted technical response. Question: "${q}"`;
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${config.key}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: getPrompt(query) }] }], generationConfig: { maxOutputTokens: 4000, temperature: 0.7 } }),
-        signal: activeController.signal
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 4000, temperature: 0.7 } }),
+        signal: activeCtrl.signal
     });
     const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
     return data.candidates[0].content.parts[0].text;
 }
 
-async function callOpenAI(query) {
+async function callOpenAI(q) {
+    const prompt = `Provide a comprehensive technical response for SAP CPI: "${q}"`;
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.key}` },
-        body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: getPrompt(query) }] }),
-        signal: activeController.signal
+        body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'user', content: prompt }] }),
+        signal: activeCtrl.signal
     });
     const data = await res.json();
     return data.choices[0].message.content;
 }
 
-async function callClaude(query) {
+async function callClaude(q) {
+    const prompt = `Provide a comprehensive technical response for SAP CPI: "${q}"`;
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': config.key, 'anthropic-version': '2023-06-01', 'anthropic-dangerously-allow-browser': 'true' },
-        body: JSON.stringify({ model: 'claude-3-5-sonnet-20241022', max_tokens: 4000, messages: [{ role: 'user', content: getPrompt(query) }] }),
-        signal: activeController.signal
+        body: JSON.stringify({ model: 'claude-3-5-sonnet-20241022', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
+        signal: activeCtrl.signal
     });
     const data = await res.json();
     return data.content[0].text;
 }
 
-async function callSerper(query) {
+async function callSerper(q) {
     const res = await fetch('https://google.serper.dev/search', {
         method: 'POST', headers: { 'X-API-KEY': config.key, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q: query }),
-        signal: activeController.signal
+        body: JSON.stringify({ q: q }),
+        signal: activeCtrl.signal
     });
     const data = await res.json();
-    let md = "## Search Results\n\n";
-    data.organic.slice(0, 5).forEach(r => md += `### [${r.title}](${r.link})\n${r.snippet}\n\n`);
+    let md = "## Web Search Results\n\n";
+    if (data.organic) data.organic.slice(0, 5).forEach(r => md += `### [${r.title}](${r.link})\n${r.snippet}\n\n`);
     return md;
+}
+
+function clearUI() {
+    document.querySelectorAll('.qa').forEach(e => e.remove());
+    document.getElementById('empty-state').style.display = 'block';
 }
 </script>
 </body>
