@@ -145,12 +145,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 }
 .cfg-btn:hover{border-color:#a5b4fc;color:#4f46e5}
 
-/* Feed area - CHANGED TO BLOCK TO FIX SCROLLING BUGS */
+/* Feed area */
 .feed{
   flex:1;
   overflow-y:auto;
   padding:30px 20px;
-  display:block; /* Block layout completely fixes the cut-off scroll bug */
+  display:block; 
   scroll-behavior:smooth;
 }
 .feed::-webkit-scrollbar{width:6px}
@@ -159,7 +159,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 /* Empty State */
 .empty{
-  margin-top: 8vh; /* Centers empty state manually without flex issues */
+  margin-top: 8vh; 
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   text-align:center;gap:16px;padding:20px;
@@ -188,7 +188,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   animation:pop .25s ease;
   width: 100%;
   max-width: 900px; 
-  margin: 0 auto 40px auto; /* Centers card nicely in Block layout */
+  margin: 0 auto 40px auto; 
+  flex-shrink: 0; 
 }
 @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -330,9 +331,39 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   font-size:12px;padding:8px 22px;cursor:pointer;transition:all .15s;
 }
 .rec-stop:hover{background:rgba(255,255,255,.18);color:#fff}
+
+/* ═══════════════ STEALTH MODE ═══════════════ */
+body.stealth-mode { background: #ffffff; }
+body.stealth-mode .bar, 
+body.stealth-mode .bot, 
+body.stealth-mode .empty { display: none !important; }
+body.stealth-mode .feed { padding: 15px; }
+body.stealth-mode .qa { box-shadow: none; border: none; margin: 0 0 25px 0; max-width: 100%; border-radius: 0; }
+body.stealth-mode .qa-q { background: transparent; border-bottom: 1px dashed #ccc; padding: 5px 0; }
+body.stealth-mode .qa-q-num, 
+body.stealth-mode .qa-a-meta { display: none !important; }
+body.stealth-mode .qa-q-text { font-weight: normal; color: #666; font-size: 13px; }
+body.stealth-mode .qa-a { padding: 10px 0; }
+body.stealth-mode .qa-a-body { font-family: Arial, sans-serif; color: #111; font-size: 13.5px; line-height: 1.5; }
+body.stealth-mode .qa-a-body h1, 
+body.stealth-mode .qa-a-body h2, 
+body.stealth-mode .qa-a-body h3 { font-size: 14px; color: #000; border: none; margin: 12px 0 6px 0; font-weight: bold; }
+/* Hide big recording overlay */
+body.stealth-mode #rec { background: transparent; backdrop-filter: none; pointer-events: none; }
+body.stealth-mode .rec-ring, 
+body.stealth-mode .rec-core, 
+body.stealth-mode .rec-title, 
+body.stealth-mode .rec-hint, 
+body.stealth-mode .rec-text, 
+body.stealth-mode .rec-stop { display: none !important; }
+/* Tiny invisible stealth dot indicator */
+.stealth-dot { display: none; position: fixed; top: 6px; right: 6px; width: 4px; height: 4px; border-radius: 50%; background: #ff0000; z-index: 9999; box-shadow: 0 0 4px rgba(255,0,0,0.5); }
+body.stealth-mode.is-recording .stealth-dot { display: block; }
 </style>
 </head>
 <body>
+
+<div class="stealth-dot"></div>
 
 <div id="setup">
   <div class="card">
@@ -417,7 +448,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
       <div class="e-tips">
         <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
-        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
+        <div class="e-tip"><div class="et-i">👻</div><div class="et-t">Stealth Mode</div><div class="et-d">Press <b>Alt + S</b> to hide the UI and turn into a blank document.</div></div>
         <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
         <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
       </div>
@@ -425,7 +456,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 
   <div class="bot">
-    <div class="bot-l"><div class="bot-led"></div><span id="stxt">Ready — right-click anywhere to start</span></div>
+    <div class="bot-l"><div class="bot-led"></div><span id="stxt">Ready — right-click anywhere to start (Alt+S for Stealth)</span></div>
     <button class="clr-btn" onclick="clearFeed()">🗑 Clear interface</button>
   </div>
 </div>
@@ -529,41 +560,45 @@ function goSet(){
   document.getElementById('kval').value=keys[ai];
 }
 
-/* ── Toggle Record Interaction & Instant Submits ── */
+/* ── Stealth & Toggle Record Interaction ── */
 document.addEventListener('contextmenu', e => {
   if (document.getElementById('app').style.display === 'flex') {
     e.preventDefault();
-    
-    // 100% reliable toggle functionality
     if (!isRec) {
       startRec();
     } else {
-      forceProcessTranscript(); // Instantly grab text and submit
+      forceProcessTranscript(); 
     }
   }
 });
-document.addEventListener('keydown', e => { if(e.key === 'Escape') cancelRec() });
+
+document.addEventListener('keydown', e => { 
+  if(e.key === 'Escape') cancelRec(); 
+  // Toggle stealth mode with Alt + S
+  if(e.altKey && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      document.body.classList.toggle('stealth-mode');
+  }
+});
 
 function startRec(){
   if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
     alert('Please use Google Chrome or Edge for voice input.');return;
   }
   
-  if (activeController) {
-    activeController.abort();
-  }
+  if (activeController) activeController.abort();
   activeController = new AbortController();
   isBusy = false; 
 
   document.getElementById('rec').classList.add('on');
   document.getElementById('rtxt').textContent='Waiting for speech…';
   document.getElementById('stxt').textContent='🎤 Recording — right-click again to send';
+  document.body.classList.add('is-recording'); // Turns on tiny red dot in stealth mode
   isRec=true;
   finalTranscript = ''; 
 
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   recog=new SR();
-  
   recog.continuous=true; 
   recog.interimResults=true;
   recog.lang='en-US';
@@ -578,29 +613,27 @@ function startRec(){
     document.getElementById('rtxt').textContent = displayTxt || 'Listening…';
   };
 
-  // Natively fires if the user stops talking for ~15 seconds and Chrome auto-closes it
   recog.onend=()=>{
-    if (!isRec) return; // Prevent double firing if we manually submitted
+    if (!isRec) return; 
     forceProcessTranscript();
   };
 
   recog.onerror=err=>{
-    document.getElementById('rec').classList.remove('on');isRec=false;
+    document.getElementById('rec').classList.remove('on');
+    document.body.classList.remove('is-recording');
+    isRec=false;
     const m={'not-allowed':'Mic blocked','no-speech':'No speech detected'};
     setSt('⚠ '+(m[err.error]||err.error));
-    setTimeout(()=>setSt('Ready — right-click anywhere to start'),4000);
+    setTimeout(()=>setSt('Ready — right-click anywhere to start (Alt+S for Stealth)'),4000);
   };
   recog.start();
 }
 
-// Forces immediate submission without waiting for Chrome's buggy recog.stop() finalization
 function forceProcessTranscript() {
     if (!isRec) return;
 
-    // Grab the exact text visible on screen right now
     let q = document.getElementById('rtxt').textContent.trim();
 
-    // Kill the recognition hardware connection instantly
     if (recog) {
         recog.onend = null; 
         recog.onerror = null;
@@ -608,26 +641,24 @@ function forceProcessTranscript() {
     }
 
     document.getElementById('rec').classList.remove('on');
+    document.body.classList.remove('is-recording');
     isRec = false;
 
-    // Auto-Correct: Fix common speech recognition errors for SAP CPI
+    // Auto-Corrects
     q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI');
     q = q.replace(/\bCPA\b/gi, 'CPI');
     q = q.replace(/\bcontent in rich\b/gi, 'content enrich');
     q = q.replace(/\bcontent modified\b/gi, 'content modifier');
-    
-    // --> NEW AUTO-CORRECTS based on screenshot
     q = q.replace(/\bHenry\b/gi, 'Enrich');
     q = q.replace(/\bhenry\b/gi, 'enrich');
 
     if (q && q !== 'Waiting for speech…' && q !== 'Listening…') {
         answerQ(q);
     } else {
-        setSt('Ready — right-click anywhere to start');
+        setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
     }
 }
 
-// Cancels completely without asking AI
 function cancelRec(){
   if (!isRec) return;
   if(recog) {
@@ -637,8 +668,9 @@ function cancelRec(){
     recog = null;
   }
   document.getElementById('rec').classList.remove('on');
+  document.body.classList.remove('is-recording');
   isRec=false;
-  setSt('Ready — right-click anywhere to start');
+  setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
 }
 
 /* ── answer pipeline ── */
@@ -649,7 +681,6 @@ async function answerQ(question){
   const empty=document.getElementById('empty');
   if(empty)empty.style.display='none';
 
-  // Clear previous cards
   document.querySelectorAll('.qa').forEach(el => el.remove());
 
   setSt('⏳ Fetching data…');
@@ -690,12 +721,8 @@ async function answerQ(question){
     setSt(`✓ Request complete — right-click to ask another`);
     isBusy=false; syncHint(false);
   }catch(e){
-    if (e.name === 'AbortError') {
-      console.log('Request cancelled by user');
-      return; 
-    }
+    if (e.name === 'AbortError') return; 
     
-    // --> NEW: Added a manual Retry button to the error state
     document.getElementById('body-'+id).outerHTML=`
       <div class="qa-err">
         ⚠️ <span>${esc(e.message||'API error — check your key')}</span>
@@ -719,7 +746,6 @@ function renderText(id, text, card) {
 
   const CHUNK = 8;
   const iv = setInterval(() => {
-    // Stop typing immediately if user starts a new question
     if (activeController && activeController.signal.aborted) {
       clearInterval(iv);
       return; 
@@ -779,7 +805,6 @@ async function doSerper(question, signal) {
   return md;
 }
 
-/* ── NO RETRY LOOP - Fails instantly on 429 Error ── */
 async function doGemini(question, cid, signal){
   const MODEL='gemini-2.5-flash';
   const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
@@ -889,12 +914,12 @@ function clearFeed(){
       <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
       <div class="e-tips">
         <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
-        <div class="e-tip"><div class="et-i">🎤</div><div class="et-t">Continuous Speech</div><div class="et-d">Take your time. It keeps listening until you stop it.</div></div>
+        <div class="e-tip"><div class="et-i">👻</div><div class="et-t">Stealth Mode</div><div class="et-d">Press <b>Alt + S</b> to hide the UI and turn into a blank document.</div></div>
         <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
         <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
       </div>
     </div>`;
-  setSt('Ready — right-click anywhere to start');
+  setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
 }
 </script>
 </body>
