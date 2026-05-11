@@ -135,7 +135,7 @@ async function answerQ(question){
         
         const body=document.getElementById('answ');
         body.className='qa-a-body';
-        // Corrected typing effect with marked.js
+        // Typing effect with marked.js
         let i=0; const chunk=10;
         const iv=setInterval(()=>{
             if(i>=text.length){ clearInterval(iv); body.innerHTML=marked.parse(text); return; }
@@ -151,19 +151,19 @@ async function doGemini(q){
         body:JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:4000, temperature:0.7}})
     });
     const data=await res.json();
-    if(!data.candidates || !data.candidates[0]) throw new Error("No response from AI. Check your API Key.");
+    if(!data.candidates || !data.candidates[0] || !data.candidates[0].content) throw new Error("No response from AI. Check your API Key.");
     return data.candidates[0].content.parts[0].text;
 }
 
 async function doSerper(q){
-    const res=await fetch('https://google.serper.dev/search',{
-        method:'POST',headers:{'X-API-KEY':keys.serper,'Content-Type':'application/json'},
-        body:JSON.stringify({q})
-    });
-    const data=await res.json();
-    let md='## Search Results\n\n';
-    data.organic.forEach(i=> md+=`* [**${i.title}**](${i.link})\n ${i.snippet}\n\n`);
-    return md;
+  const res=await fetch('https://google.serper.dev/search',{
+    method:'POST',headers:{'X-API-KEY':keys.serper,'Content-Type':'application/json'},
+    body:JSON.stringify({q})
+  });
+  const data=await res.json();
+  let md='## Search Results\n\n';
+  if (data.organic) data.organic.forEach(i=> md+=`* [**${i.title}**](${i.link})\n ${i.snippet}\n\n`);
+  return md;
 }
 </script>
 </body>
