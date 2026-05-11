@@ -145,7 +145,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 }
 .cfg-btn:hover{border-color:#a5b4fc;color:#4f46e5}
 
-/* Feed area */
+/* Feed area - Block layout for 100% reliable scrolling */
 .feed{
   flex:1;
   overflow-y:auto;
@@ -172,14 +172,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 }
 .e-title{font-size:22px;font-weight:700;color:#1e293b;letter-spacing:-.4px}
 .e-sub{font-size:14px;color:#64748b;max-width:340px;line-height:1.65}
-.e-tips{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;width:100%}
-.e-tip{
-  background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;
-  padding:14px;text-align:left;box-shadow:var(--shadow);
-}
-.et-i{font-size:18px;margin-bottom:6px}
-.et-t{font-size:12px;font-weight:600;color:#1e293b;margin-bottom:3px}
-.et-d{font-size:11px;color:#64748b;line-height:1.45}
 
 /* QA Card */
 .qa{
@@ -229,19 +221,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .qa-a-body em { font-style: italic; color: #475569; }
 .qa-a-body ul, .qa-a-body ol { padding-left: 24px; margin-bottom: 16px; }
 .qa-a-body li { margin-bottom: 6px; line-height: 1.6; }
-.qa-a-body li::marker { color: #64748b; font-weight: 600; }
 .qa-a-body h1, .qa-a-body h2, .qa-a-body h3 { font-weight: 700; color: #1e293b; margin: 26px 0 12px; line-height: 1.3; }
-.qa-a-body h1 { font-size: 20px; }
 .qa-a-body h2 { font-size: 17px; color: #4f46e5; border-bottom: 1.5px solid #e0e7ff; padding-bottom: 6px; }
-.qa-a-body h2:first-child { margin-top: 0; }
-.qa-a-body h3 { font-size: 15px; color: #374151; }
 .qa-a-body code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; font-family: var(--mono); font-size: 12.5px; padding: 2px 6px; color: #be185d; }
-.qa-a-body pre { background: #1e293b; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; margin-bottom: 16px; }
-.qa-a-body pre code { background: transparent; border: none; color: inherit; padding: 0; font-size: 13px; }
-.qa-a-body blockquote { border-left: 4px solid #818cf8; background: #f8f7ff; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; color: #4338ca; font-style: italic; }
-.qa-a-body hr { border: 0; height: 1px; background: #e2e8f0; margin: 24px 0; }
-
-/* Link Styles for Clickable Serper Links */
 .qa-a-body a { color: #4f46e5; text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
 .qa-a-body a:hover { border-bottom: 1px solid #4f46e5; }
 
@@ -252,17 +234,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   width:7px;height:7px;border-radius:50%;background:#a5b4fc;
   animation:db 1.2s ease-in-out infinite;
 }
-.dots span:nth-child(2){animation-delay:.2s}
-.dots span:nth-child(3){animation-delay:.4s}
 @keyframes db{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
-
-/* Cursor */
-.cur{
-  display:inline-block;width:2px;height:15px;
-  background:#4f46e5;vertical-align:middle;margin-left:2px;
-  animation:cb .65s step-end infinite;
-}
-@keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
 
 /* Error in card */
 .qa-err{
@@ -273,9 +245,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .retry-btn {
   margin-left: auto; background: #fff; border: 1px solid #fca5a5; color: #dc2626;
   padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;
-  transition: background 0.2s; white-space: nowrap;
+  transition: background 0.2s;
 }
-.retry-btn:hover { background: #fee2e2; }
 
 /* Bottom bar */
 .bot{
@@ -294,7 +265,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   font-family:var(--font);font-size:11px;color:#64748b;
   cursor:pointer;padding:5px 12px;transition:all .15s;
 }
-.clr-btn:hover{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
 
 /* Recording overlay */
 #rec{
@@ -318,9 +288,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   background:linear-gradient(135deg,#ef4444,#dc2626);
   display:flex;align-items:center;justify-content:center;
   font-size:28px;box-shadow:0 0 30px rgba(239,68,68,.5);
-  animation:rs 1s ease-in-out infinite alternate;
 }
-@keyframes rs{from{transform:scale(1)}to{transform:scale(1.07)}}
 .rec-title{color:#fff;font-size:16px;font-weight:600}
 .rec-hint{color:rgba(255,255,255,.9);font-size:14px;font-weight:500;background:rgba(255,255,255,0.1);padding:6px 14px;border-radius:20px;}
 .rec-text{
@@ -334,7 +302,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   border-radius:8px;color:rgba(255,255,255,.7);font-family:var(--font);
   font-size:12px;padding:8px 22px;cursor:pointer;transition:all .15s;
 }
-.rec-stop:hover{background:rgba(255,255,255,.18);color:#fff}
 
 /* ═══════════════ STEALTH MODE ═══════════════ */
 body.stealth-mode { background: #ffffff; }
@@ -352,16 +319,9 @@ body.stealth-mode .qa-a-body { font-family: Arial, sans-serif; color: #111; font
 body.stealth-mode .qa-a-body h1, 
 body.stealth-mode .qa-a-body h2, 
 body.stealth-mode .qa-a-body h3 { font-size: 14px; color: #000; border: none; margin: 12px 0 6px 0; font-weight: bold; }
-/* Hide big recording overlay */
 body.stealth-mode #rec { background: transparent; backdrop-filter: none; pointer-events: none; }
-body.stealth-mode .rec-ring, 
-body.stealth-mode .rec-core, 
-body.stealth-mode .rec-title, 
-body.stealth-mode .rec-hint, 
-body.stealth-mode .rec-text, 
-body.stealth-mode .rec-stop { display: none !important; }
-/* Tiny invisible stealth dot indicator */
-.stealth-dot { display: none; position: fixed; top: 6px; right: 6px; width: 4px; height: 4px; border-radius: 50%; background: #ff0000; z-index: 9999; box-shadow: 0 0 4px rgba(255,0,0,0.5); }
+body.stealth-mode .rec-ring, body.stealth-mode .rec-core, body.stealth-mode .rec-title, body.stealth-mode .rec-hint, body.stealth-mode .rec-text, body.stealth-mode .rec-stop { display: none !important; }
+.stealth-dot { display: none; position: fixed; top: 6px; right: 6px; width: 4px; height: 4px; border-radius: 50%; background: #ff0000; z-index: 9999; }
 body.stealth-mode.is-recording .stealth-dot { display: block; }
 </style>
 </head>
@@ -449,13 +409,7 @@ body.stealth-mode.is-recording .stealth-dot { display: block; }
     <div class="empty" id="empty">
       <div class="e-icon">🎤</div>
       <div class="e-title">Ready to Assist</div>
-      <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
-      <div class="e-tips">
-        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
-        <div class="e-tip"><div class="et-i">👻</div><div class="et-t">Stealth Mode</div><div class="et-d">Press <b>Alt + S</b> to hide the UI and turn into a blank document.</div></div>
-        <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
-        <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
-      </div>
+      <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit. (Alt+S for Stealth)</div>
     </div>
   </div>
 
@@ -480,29 +434,11 @@ let ai='gemini', micStream=null, recog=null, isRec=false, qnum=0, isBusy=false;
 let finalTranscript = '';
 let activeController = null; 
 
-/* ── AI Prompt generator with SAP CPI explicit context ── */
+/* ── Updated Prompt: Matching Gemini Web UI ── */
 function getPrompt(question) {
-  return `You are an expert interview coach specializing in SAP Cloud Platform Integration (SAP CPI). The candidate is interviewing for an SAP CPI Integration Developer role. Whenever the candidate asks a conceptual or technical question (e.g., "what is content enrich", "what is a message mapping"), you MUST assume it is in the context of SAP CPI, even if they don't explicitly mention SAP CPI.
+  return `Answer the following question about SAP Cloud Platform Integration (SAP CPI) exactly as a high-level technical assistant would. Provide a comprehensive, detailed, and naturally formatted technical response.
 
-Answer the following interview question in a clear, professional, structured format.
-
-Question: "${question}"
-
-Structure your answer with these exact sections using Markdown headings (##):
-
-## 1. Direct Answer
-(confident 2-3 sentence response)
-
-## 2. Key Points
-(3-4 bullet points with detailed explanations)
-
-## 3. STAR Example
-(A concrete Situation/Task/Action/Result example, skip if not applicable)
-
-## 4. Closing Statement
-(A strong memorable final line)
-
-Use bullet points and bold text for emphasis. Be thorough but concise.`;
+Question: "${question}"`;
 }
 
 /* ── setup ── */
@@ -511,16 +447,14 @@ function pickAI(v){
   ai=v;
   document.querySelectorAll('.ai-opt').forEach(c=>c.className='ai-opt');
   document.querySelector(`[data-ai="${v}"]`).classList.add('ai-opt','sel-'+v);
-  
   const L={gemini:'Gemini API Key', claude:'Anthropic API Key', openai:'OpenAI API Key', serper:'Serper.dev API Key'};
   const P={gemini:'AIzaSy…', claude:'sk-ant-…', openai:'sk-proj-…', serper:'YOUR_KEY'};
   const H={
-    gemini:'Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong>. Key → <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>',
-    claude:'Key → <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>',
-    openai:'Key → <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>',
-    serper:'Free Search API Key → <a href="https://serper.dev" target="_blank">serper.dev</a>'
+    gemini:'Free tier model: <strong style="color:#d97706">gemini-2.5-flash</strong>. Key → <a href="https://aistudio.google.com/app/apikey" target=\"_blank\">aistudio.google.com</a>',
+    claude:'Key → <a href="https://console.anthropic.com" target=\"_blank\">console.anthropic.com</a>',
+    openai:'Key → <a href="https://platform.openai.com/api-keys" target=\"_blank\">platform.openai.com</a>',
+    serper:'Free Search API Key → <a href="https://serper.dev" target=\"_blank\">serper.dev</a>'
   };
-  
   document.getElementById('klabel').textContent=L[v];
   document.getElementById('kval').placeholder=P[v];
   document.getElementById('kval').value=keys[v];
@@ -564,48 +498,33 @@ function goSet(){
   document.getElementById('kval').value=keys[ai];
 }
 
-/* ── Stealth & Toggle Record Interaction ── */
+/* ── Stealth & Toggle Interaction ── */
 document.addEventListener('contextmenu', e => {
   if (document.getElementById('app').style.display === 'flex') {
     e.preventDefault();
-    if (!isRec) {
-      startRec();
-    } else {
-      forceProcessTranscript(); 
-    }
+    if (!isRec) startRec(); else forceProcessTranscript(); 
   }
 });
 
 document.addEventListener('keydown', e => { 
   if(e.key === 'Escape') cancelRec(); 
-  // Toggle stealth mode with Alt + S
   if(e.altKey && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      document.body.classList.toggle('stealth-mode');
+      e.preventDefault(); document.body.classList.toggle('stealth-mode');
   }
 });
 
 function startRec(){
-  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){
-    alert('Please use Google Chrome or Edge for voice input.');return;
-  }
-  
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)) return;
   if (activeController) activeController.abort();
   activeController = new AbortController();
   isBusy = false; 
 
   document.getElementById('rec').classList.add('on');
-  document.getElementById('rtxt').textContent='Waiting for speech…';
-  document.getElementById('stxt').textContent='🎤 Recording — right-click again to send';
-  document.body.classList.add('is-recording'); // Turns on tiny red dot in stealth mode
-  isRec=true;
-  finalTranscript = ''; 
+  document.body.classList.add('is-recording');
+  isRec=true; finalTranscript = ''; 
 
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recog=new SR();
-  recog.continuous=true; 
-  recog.interimResults=true;
-  recog.lang='en-US';
+  recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
 
   recog.onresult=e=>{
     let interim = '';
@@ -613,319 +532,131 @@ function startRec(){
       if(e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
       else interim += e.results[i][0].transcript;
     }
-    const displayTxt = (finalTranscript + interim).trim();
-    document.getElementById('rtxt').textContent = displayTxt || 'Listening…';
+    document.getElementById('rtxt').textContent = (finalTranscript + interim).trim() || 'Listening…';
   };
 
-  recog.onend=()=>{
-    if (!isRec) return; 
-    forceProcessTranscript();
-  };
-
-  recog.onerror=err=>{
-    document.getElementById('rec').classList.remove('on');
-    document.body.classList.remove('is-recording');
-    isRec=false;
-    const m={'not-allowed':'Mic blocked','no-speech':'No speech detected'};
-    setSt('⚠ '+(m[err.error]||err.error));
-    setTimeout(()=>setSt('Ready — right-click anywhere to start (Alt+S for Stealth)'),4000);
-  };
+  recog.onend=()=>{ if (isRec) forceProcessTranscript(); };
+  recog.onerror=()=>{ document.getElementById('rec').classList.remove('on'); document.body.classList.remove('is-recording'); isRec=false; };
   recog.start();
 }
 
 function forceProcessTranscript() {
     if (!isRec) return;
-
     let q = document.getElementById('rtxt').textContent.trim();
-
-    if (recog) {
-        recog.onend = null; 
-        recog.onerror = null;
-        try { recog.abort(); } catch(e){} 
-    }
-
+    if (recog) { recog.onend = null; recog.onerror = null; try { recog.abort(); } catch(e){} }
     document.getElementById('rec').classList.remove('on');
     document.body.classList.remove('is-recording');
     isRec = false;
 
     // Auto-Corrects
-    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI');
-    q = q.replace(/\bCPA\b/gi, 'CPI');
-    q = q.replace(/\bcontent in rich\b/gi, 'content enrich');
-    q = q.replace(/\bcontent modified\b/gi, 'content modifier');
-    q = q.replace(/\bHenry\b/gi, 'Enrich');
-    q = q.replace(/\bhenry\b/gi, 'enrich');
+    q = q.replace(/\bSAP CPA\b/gi, 'SAP CPI').replace(/\bCPA\b/gi, 'CPI').replace(/\bHenry\b/gi, 'Enrich').replace(/\bhenry\b/gi, 'enrich');
 
-    if (q && q !== 'Waiting for speech…' && q !== 'Listening…') {
-        answerQ(q);
-    } else {
-        setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
-    }
+    if (q && q !== 'Waiting for speech…' && q !== 'Listening…') answerQ(q);
+    else setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
 }
 
 function cancelRec(){
   if (!isRec) return;
-  if(recog) {
-    recog.onend = null; 
-    recog.onerror = null;
-    try { recog.abort(); } catch{} 
-    recog = null;
-  }
-  document.getElementById('rec').classList.remove('on');
-  document.body.classList.remove('is-recording');
-  isRec=false;
-  setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
+  if(recog) { recog.onend = null; try { recog.abort(); } catch{} }
+  document.getElementById('rec').classList.remove('on'); document.body.classList.remove('is-recording'); isRec=false;
 }
 
 /* ── answer pipeline ── */
 async function answerQ(question){
-  qnum++;const id=qnum;
-  isBusy=true;
-  
-  const empty=document.getElementById('empty');
-  if(empty)empty.style.display='none';
-
+  qnum++;const id=qnum; isBusy=true;
+  document.getElementById('empty').style.display='none';
   document.querySelectorAll('.qa').forEach(el => el.remove());
-
-  setSt('⏳ Fetching data…');
-  syncHint(true);
+  setSt('⏳ Fetching data…'); syncHint(true);
 
   const BADGE={gemini:'b-g', claude:'b-c', openai:'b-o', serper:'b-s'};
   const NAMES={gemini:'Gemini', claude:'Claude', openai:'ChatGPT', serper:'Serper (Web Search)'};
   const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
   const card=document.createElement('div');
-  card.className='qa';card.id='card-'+id;
-  card.innerHTML=`
-    <div class="qa-q">
-      <div class="qa-q-num">${id}</div>
-      <div class="qa-q-text">${esc(question)}</div>
-    </div>
-    <div class="qa-a" id="qa-${id}">
-      <div class="qa-a-meta">
-        <div class="qa-a-badge ${BADGE[ai]}">${NAMES[ai]}</div>
-        <span class="qa-a-time">${now}</span>
-      </div>
-      <div id="body-${id}" class="loader">
-        <div class="dots"><span></span><span></span><span></span></div>
-        ${ai === 'serper' ? 'Searching the web...' : 'Generating answer...'}
-      </div>
-    </div>`;
+  card.className='qa'; card.id='card-'+id;
+  card.innerHTML=`<div class=\"qa-q\"><div class=\"qa-q-num\">${id}</div><div class=\"qa-q-text\">${esc(question)}</div></div>
+    <div class=\"qa-a\" id=\"qa-${id}\"><div class=\"qa-a-meta\"><div class=\"qa-a-badge ${BADGE[ai]}\">${NAMES[ai]}</div><span class=\"qa-a-time\">${now}</span></div>
+    <div id=\"body-${id}\" class=\"loader\"><div class=\"dots\"><span></span><span></span><span></span></div>Fetching...</div></div>`;
 
   document.getElementById('feed').appendChild(card);
-  scrollBottom();
-
   try{
     let text='';
     if(ai==='claude') await doClaude(question,id, activeController.signal);
-    else if(ai==='openai'){text=await doOpenAI(question, activeController.signal);renderText(id,text,card);}
-    else if(ai==='serper'){text=await doSerper(question, activeController.signal);renderText(id,text,card);}
-    else{text=await doGemini(question,id, activeController.signal);renderText(id,text,card);}
-    
-    setSt(`✓ Request complete — right-click to ask another`);
-    isBusy=false; syncHint(false);
+    else if(ai==='openai'){text=await doOpenAI(question, activeController.signal);renderText(id,text);}
+    else if(ai==='serper'){text=await doSerper(question, activeController.signal);renderText(id,text);}
+    else{text=await doGemini(question,id, activeController.signal);renderText(id,text);}
+    setSt(`✓ Request complete — right-click to ask another`); isBusy=false; syncHint(false);
   }catch(e){
     if (e.name === 'AbortError') return; 
-    
-    document.getElementById('body-'+id).outerHTML=`
-      <div class="qa-err">
-        ⚠️ <span>${esc(e.message||'API error — check your key')}</span>
-        <button class="retry-btn" data-q="${esc(question).replace(/"/g, '&quot;')}" onclick="answerQ(this.getAttribute('data-q'))">↻ Retry</button>
-      </div>`;
-      
-    setSt('⚠ Error — see the answer card');
+    document.getElementById('body-'+id).outerHTML=`<div class=\"qa-err\">⚠️ <span>${esc(e.message)}</span><button class=\"retry-btn\" onclick=\"answerQ('${esc(question)}')\">↻ Retry</button></div>`;
     isBusy=false; syncHint(false);
   }
 }
 
-/* ── Safe Markdown Rendering & Typing Effect ── */
-function renderText(id, text, card) {
+function renderText(id, text) {
   const body = document.getElementById('body-' + id);
-  if (!body) return;
-  
+  const div = document.createElement('div'); div.className = 'qa-a-body'; body.replaceWith(div);
   let i = 0;
-  const div = document.createElement('div');
-  div.className = 'qa-a-body';
-  body.replaceWith(div);
-
-  const CHUNK = 8;
   const iv = setInterval(() => {
-    if (activeController && activeController.signal.aborted) {
-      clearInterval(iv);
-      return; 
-    }
-    
-    if (i >= text.length) {
-      clearInterval(iv);
-      div.innerHTML = marked.parse(text);
-      scrollBottom();
-      return;
-    }
-    i += CHUNK;
-    const partial = text.slice(0, i);
-    div.innerHTML = marked.parse(partial) + '<span class="cur"></span>';
-    scrollBottom();
+    if (activeController && activeController.signal.aborted) { clearInterval(iv); return; }
+    if (i >= text.length) { clearInterval(iv); div.innerHTML = marked.parse(text); return; }
+    i += 8; div.innerHTML = marked.parse(text.slice(0, i)) + '<span class=\"cur\"></span>';
   }, 15);
 }
 
 /* ── API CALLS ── */
 async function doSerper(question, signal) {
   const res = await fetch('https://google.serper.dev/search', {
-    method: 'POST',
-    headers: {
-      'X-API-KEY': keys.serper,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ q: question }),
-    signal: signal
+    method: 'POST', headers: {'X-API-KEY': keys.serper, 'Content-Type': 'application/json'},
+    body: JSON.stringify({ q: question }), signal: signal
   });
-
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({}));
-    throw new Error(e?.message || `Serper API Error ${res.status}`);
-  }
-
+  if (!res.ok) throw new Error(`Serper Error ${res.status}`);
   const data = await res.json();
-  let md = ``;
-
-  if (data.answerBox && (data.answerBox.snippet || data.answerBox.answer)) {
-    md += `## 1. Quick Answer\n${data.answerBox.snippet || data.answerBox.answer}\n\n`;
-  } else if (data.knowledgeGraph && data.knowledgeGraph.description) {
-    md += `## 1. Quick Answer (${data.knowledgeGraph.title})\n${data.knowledgeGraph.description}\n\n`;
-  } else {
-    md += `## 1. Search Overview\nHere are the top organic results for your query.\n\n`;
-  }
-
-  md += `## 2. Top Results\n`;
-  if (data.organic && data.organic.length > 0) {
-    data.organic.slice(0, 4).forEach(item => {
-      // ---> NEW: Added clickable hyperlinks to the Serper results! <---
-      md += `* <a href="${item.link}" target="_blank" style="color: #4f46e5; text-decoration: none;">**${item.title}**</a>\n  ${item.snippet}\n`;
-    });
-  } else {
-    md += `* No organic web results found.\n`;
-  }
-
-  md += `\n## 3. Source\nResults powered by Google Search via Serper.dev`;
+  let md = `## Search Results\n\n`;
+  if (data.answerBox) md += `**Quick Answer:** ${data.answerBox.answer || data.answerBox.snippet}\n\n`;
+  if (data.organic) data.organic.slice(0, 4).forEach(item => {
+    md += `* <a href="${item.link}" target=\"_blank\">**${item.title}**</a>\n  ${item.snippet}\n`;
+  });
   return md;
 }
 
 async function doGemini(question, cid, signal){
-  const MODEL='gemini-2.5-flash';
-  const URL=`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${keys.gemini}`;
-
-  const res=await fetch(URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      contents:[{parts:[{text:getPrompt(question)}]}],
-      generationConfig:{temperature:.7,maxOutputTokens:1024}
-    }),
-    signal: signal
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${keys.gemini}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ contents:[{parts:[{text:getPrompt(question)}]}] }), signal: signal
   });
-
-  if(res.status===429){
-    throw new Error('API Rate limit reached (Free Tier). Please wait a few seconds and ask again.');
-  }
-  if(!res.ok){
-    const e=await res.json().catch(()=>({}));
-    throw new Error(e?.error?.message||`API error ${res.status}`);
-  }
-  const data=await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
+  if (res.status === 429) throw new Error('API Rate limit reached.');
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
 }
 
 async function doClaude(question, id, signal){
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key':keys.claude,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerously-allow-browser':'true'
-    },
-    body:JSON.stringify({
-      model:'claude-3-5-sonnet-20241022',max_tokens:1024,stream:true,
-      system:'You are an expert interview coach specializing in SAP CPI.',
-      messages:[{role:'user',content:getPrompt(question)}]
-    }),
-    signal: signal
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':keys.claude, 'anthropic-version':'2023-06-01', 'anthropic-dangerously-allow-browser':'true' },
+    body:JSON.stringify({ model:'claude-3-5-sonnet-20241022', max_tokens:2048, stream:true, messages:[{role:'user',content:getPrompt(question)}] }), signal: signal
   });
-  if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
-
-  const body=document.getElementById('body-'+id);
-  const div=document.createElement('div');div.className='qa-a-body';
-  body.replaceWith(div);
-
-  const reader=res.body.getReader(),dec=new TextDecoder();
-  let full='';
+  const body=document.getElementById('body-'+id); const div=document.createElement('div'); div.className='qa-a-body'; body.replaceWith(div);
+  const reader=res.body.getReader(); let full='';
   while(true){
-    const{done,value}=await reader.read();if(done)break;
-    const chunk = dec.decode(value, {stream:true});
-    for(const line of chunk.split('\n')){
-      if(line.startsWith('data: ')){
-        try{
-          const p=JSON.parse(line.slice(6));
-          if(p.type==='content_block_delta'&&p.delta?.text){
-            full+=p.delta.text;
-            div.innerHTML = marked.parse(full) + '<span class="cur"></span>';
-            scrollBottom();
-          }
-        }catch{}
-      }
+    const{done,value}=await reader.read(); if(done)break;
+    for(const line of new TextDecoder().decode(value).split('\n')){
+      if(line.startsWith('data: ')){ try{ const p=JSON.parse(line.slice(6)); if(p.type==='content_block_delta'){ full+=p.delta.text; div.innerHTML = marked.parse(full) + '<span class=\"cur\"></span>'; } }catch{} }
     }
   }
-  div.innerHTML=marked.parse(full);
-  scrollBottom();
 }
 
 async function doOpenAI(question, signal){
-  const res=await fetch('https://api.openai.com/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':`Bearer ${keys.openai}`},
-    body:JSON.stringify({
-      model:'gpt-4o',max_tokens:1024,
-      messages:[
-        {role:'system',content:'You are an expert interview coach specializing in SAP CPI.'},
-        {role:'user',content:getPrompt(question)}
-      ]
-    }),
-    signal: signal
+  const res = await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${keys.openai}`},
+    body:JSON.stringify({ model:'gpt-4o', messages:[{role:'user',content:getPrompt(question)}] }), signal: signal
   });
-  if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`)}
   return(await res.json()).choices[0].message.content;
 }
 
-/* ── utils ── */
-function syncHint(busy){
-  const h=document.querySelector('.tag-hint');
-  if(!h)return;
-  if(busy){h.style.background='#fef3c7';h.style.borderColor='#fcd34d';h.style.color='#92400e';h.textContent='⏳ Fetching…';}
-  else{h.style.background='';h.style.borderColor='';h.style.color='';h.textContent='🖱 Right-click to toggle mic';}
-}
-
-function scrollBottom(){
-  const f=document.getElementById('feed');
-  f.scrollTop=f.scrollHeight;
-}
+function syncHint(busy){ const h=document.querySelector('.tag-hint'); if(!h)return; h.textContent = busy ? '⏳ Fetching…' : '🖱 Right-click to toggle mic'; }
 function setSt(m){document.getElementById('stxt').textContent=m}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function clearFeed(){
-  qnum=0;
-  document.getElementById('feed').innerHTML=`
-    <div class="empty" id="empty">
-      <div class="e-icon">🎤</div>
-      <div class="e-title">Ready to Assist</div>
-      <div class="e-sub">Right-click anywhere to start listening. Right-click again to submit.</div>
-      <div class="e-tips">
-        <div class="e-tip"><div class="et-i">🖱</div><div class="et-t">Right-click to Toggle</div><div class="et-d">Click once to start, click again to finish and submit.</div></div>
-        <div class="e-tip"><div class="et-i">👻</div><div class="et-t">Stealth Mode</div><div class="et-d">Press <b>Alt + S</b> to hide the UI and turn into a blank document.</div></div>
-        <div class="e-tip"><div class="et-i">💡</div><div class="et-t">SAP CPI Context Built-in</div><div class="et-d">Questions are automatically assumed to be about SAP CPI.</div></div>
-        <div class="e-tip"><div class="et-i">⚡</div><div class="et-t">Instant Interrupt</div><div class="et-d">Right-click to cancel slow loading and instantly start a new question.</div></div>
-      </div>
-    </div>`;
-  setSt('Ready — right-click anywhere to start (Alt+S for Stealth)');
-}
+function clearFeed(){ qnum=0; document.getElementById('feed').innerHTML=`<div class=\"empty\" id=\"empty\"><div class=\"e-icon\">🎤</div><div class=\"e-title\">Ready to Assist</div></div>`; setSt('Ready — right-click anywhere to start (Alt+S for Stealth)'); }
 </script>
 </body>
 </html>
